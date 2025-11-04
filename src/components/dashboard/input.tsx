@@ -9,7 +9,6 @@ export function DashInput(props: DashInputProps) {
   const { className, darkMode: darkModeProp, ...rest } = props;
   const { darkMode: darkModeContext } = useTheme();
   
-  // Usa a prop se fornecida, senão usa o contexto
   const darkMode = darkModeProp ?? darkModeContext;
   
   const baseClass = `w-full px-4 py-3 rounded-lg border transition-all focus:outline-none focus:ring-2 ${

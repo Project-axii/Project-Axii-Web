@@ -125,7 +125,7 @@ export function DashFilters({
         className={`w-full md:w-auto px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg transform hover:scale-[1.02] ${
           darkMode
             ? "bg-blue-600 hover:bg-blue-700 text-white"
-            : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+            : "bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
         }`}
       >
         <svg
