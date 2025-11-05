@@ -1,9 +1,10 @@
-import { useState} from "react";
-import { useTheme} from "./components/ThemeContext";
-import { DashFilters } from "./components/dashboard/filters";
-import { DeviceList } from "./components/dashboard/device-list";
-import { DashStatistics } from './components/dashboard/statistics';
-import { DashModal } from './components/dashboard/modal';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom"; 
+import { useTheme } from "../components/ThemeContext";
+import { DashFilters } from "../components/dashboard/filters";
+import { DeviceList } from "../components/dashboard/device-list";
+import { DashStatistics } from "../components/dashboard/statistics";
+import { DashModal } from "../components/dashboard/modal";
 
 interface Device {
   id: number;
@@ -17,8 +18,10 @@ interface Device {
   ultima_conexao: string;
 }
 
-export default function DeviceManagement() {
-  const { darkMode, toggleDarkMode} = useTheme();
+export default function Dashboard() {
+  const { darkMode, toggleDarkMode } = useTheme();
+  const navigate = useNavigate(); 
+  
   const [devices, setDevices] = useState<Device[]>([
     {
       id: 1,
@@ -67,7 +70,6 @@ export default function DeviceManagement() {
     sala: "",
     descricao: "",
   });
-
 
   const deviceIcons = {
     computador: "",
@@ -165,12 +167,16 @@ export default function DeviceManagement() {
     window.location.reload();
   };
 
+  const handleGoToSettings = () => {
+    navigate('/settings'); 
+  };
+
   return (
     <div
       className={`min-h-screen transition-colors duration-300 ${
         darkMode
           ? "bg-gray-900"
-          : "bg-linear-to-br from-blue-50 to-indigo-100"
+          : "bg-gradient-to-br from-blue-50 to-indigo-100"
       }`}
     >
       {/* Background Animation */}
@@ -202,7 +208,7 @@ export default function DeviceManagement() {
                 className={`w-12 h-12 rounded-full flex items-center justify-center ${
                   darkMode
                     ? "bg-blue-600"
-                    : "bg-linear-to-br from-blue-500 to-indigo-600"
+                    : "bg-gradient-to-br from-blue-500 to-indigo-600"
                 }`}
               >
                 <svg
@@ -252,11 +258,41 @@ export default function DeviceManagement() {
               </button>
 
               <button
+                onClick={handleGoToSettings}
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${
+                  darkMode
+                    ? "bg-gray-700 text-gray-300 hover:text-white"
+                    : "bg-gray-100 text-gray-700 hover:text-gray-900"
+                }`}
+                aria-label="Configurações"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+              </button>
+
+              <button
                 onClick={handleLogout}
                 className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 ${
                   darkMode
                     ? "bg-red-600 hover:bg-red-700 text-white"
-                    : "bg-linear-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white"
+                    : "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white"
                 } shadow-lg transform hover:scale-[1.02]`}
               >
                 <svg
@@ -303,7 +339,6 @@ export default function DeviceManagement() {
           deleteDevice={deleteDevice}
           formatDate={formatDate}
         />
-        
       </div>
 
       <DashModal
@@ -313,23 +348,23 @@ export default function DeviceManagement() {
         setNewDevice={setNewDevice}
         handleAddDevice={handleAddDevice}
       />
-      
+
       <style>{`
         @keyframes float {
-        0%, 100% {
+          0%, 100% {
             transform: translate(0, 0) scale(1);
-        }
-        33% {
+          }
+          33% {
             transform: translate(30px, -30px) scale(1.1);
-        }
-        66% {
+          }
+          66% {
             transform: translate(-20px, 20px) scale(0.9);
-        }
+          }
         }
         .animate-float {
-        animation: float 20s ease-in-out infinite;
+          animation: float 20s ease-in-out infinite;
         }
-    `}</style>
+      `}</style>
     </div>
   );
 }
