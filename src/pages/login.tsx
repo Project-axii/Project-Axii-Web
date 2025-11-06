@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { BackgroundBlobs } from "../components/background";
 
 interface LoginScreenProps {
     onLogin: () => void;
@@ -68,27 +69,7 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
                 darkMode ? "bg-gray-900" : "bg-linear-to-br from-blue-50 to-indigo-100"
             }`}
         >
-            {/* Background Animation */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div
-                    className={`absolute w-96 h-96 rounded-full blur-3xl opacity-20 animate-float ${
-                        darkMode ? "bg-blue-500" : "bg-blue-400"
-                    }`}
-                    style={{ top: "-10%", left: "-10%", animationDelay: "0s" }}
-                ></div>
-                <div
-                    className={`absolute w-96 h-96 rounded-full blur-3xl opacity-20 animate-float ${
-                        darkMode ? "bg-purple-500" : "bg-purple-400"
-                    }`}
-                    style={{ bottom: "-10%", right: "-10%", animationDelay: "2s" }}
-                ></div>
-                <div
-                    className={`absolute w-96 h-96 rounded-full blur-3xl opacity-20 animate-float ${
-                        darkMode ? "bg-pink-500" : "bg-pink-400"
-                    }`}
-                    style={{ top: "40%", right: "40%", animationDelay: "4s" }}
-                ></div>
-            </div>
+            <BackgroundBlobs darkMode={darkMode} />
 
             {/* Theme Toggle */}
             <button
