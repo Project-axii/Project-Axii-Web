@@ -9,6 +9,8 @@ import { SecurityTab } from "../components/settings/securityTab";
 import { NotificationsTab } from "../components/settings/notificationsTab";
 import { PrivacyTab } from "../components/settings/privacyTab";
 import { DangerZone } from "../components/settings/dangerZone";
+import { User, Shield, Bell, Globe, ArrowLeft  } from "lucide-react";
+
 
 interface User {
   id: string;
@@ -102,7 +104,7 @@ export default function Settings() {
   };
 
   const handleClearAllData = () => {
-    if (!window.confirm("⚠️ ATENÇÃO: Isso irá excluir TODOS os seus dispositivos, grupos e agendamentos. Esta ação não pode ser desfeita. Deseja continuar?")) {
+    if (!window.confirm("ATENÇÃO: Isso irá excluir TODOS os seus dispositivos, grupos e agendamentos. Esta ação não pode ser desfeita. Deseja continuar?")) {
       return;
     }
     const confirmation = window.prompt('Digite "CONFIRMAR" em maiúsculas para prosseguir:');
@@ -114,7 +116,7 @@ export default function Settings() {
   };
 
   const handleDeleteAccount = () => {
-    if (!window.confirm("⚠️ ATENÇÃO: Isso irá EXCLUIR SUA CONTA PERMANENTEMENTE. Todos os seus dados serão perdidos. Esta ação não pode ser desfeita. Deseja continuar?")) {
+    if (!window.confirm("ATENÇÃO: Isso irá EXCLUIR SUA CONTA PERMANENTEMENTE. Todos os seus dados serão perdidos. Esta ação não pode ser desfeita. Deseja continuar?")) {
       return;
     }
     const confirmation = window.prompt('Digite "EXCLUIR CONTA" em maiúsculas para prosseguir:');
@@ -140,12 +142,12 @@ export default function Settings() {
     navigate('/');
   };
 
-  const tabs = [
-    { id: "profile", label: "Perfil", icon: "👤" },
-    { id: "security", label: "Segurança", icon: "🛡️" },
-    { id: "notifications", label: "Notificações", icon: "🔔" },
-    { id: "privacy", label: "Privacidade", icon: "🌐" },
-  ];
+const tabs = [
+  { id: "profile", label: "Perfil", icon: User },
+  { id: "security", label: "Segurança", icon: Shield },
+  { id: "notifications", label: "Notificações", icon: Bell },
+  { id: "privacy", label: "Privacidade", icon: Globe },
+];
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${darkMode ? "bg-gray-900" : "bg-gradient-to-br from-blue-50 to-indigo-100"}`}>
@@ -181,15 +183,18 @@ export default function Settings() {
             </div>
 
             <nav className="space-y-2">
-              {tabs.map((tab) => (
-                <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-200 flex items-center space-x-3 ${activeTab === tab.id ? (darkMode ? "bg-blue-600 text-white" : "bg-gradient-to-r from-blue-500 to-indigo-600 text-white") : (darkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100")}`}>
-                  <span className="text-xl">{tab.icon}</span>
-                  <span>{tab.label}</span>
-                </button>
-              ))}
+              {tabs.map((tab) => {
+                const IconComponent = tab.icon;
+                return (
+                  <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-200 flex items-center space-x-3 ${activeTab === tab.id ? (darkMode ? "bg-blue-600 text-white" : "bg-gradient-to-r from-blue-500 to-indigo-600 text-white") : (darkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100")}`}>
+                    <IconComponent className="w-5 h-5" />
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
               <div className={`my-4 border-t ${darkMode ? "border-gray-700" : "border-gray-200"}`}></div>
               <button onClick={handleBackToDashboard} className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-200 flex items-center space-x-3 ${darkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"}`}>
-                <span className="text-xl">↩️</span>
+                <ArrowLeft className="w-5 h-5" />
                 <span>Voltar</span>
               </button>
             </nav>

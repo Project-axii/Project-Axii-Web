@@ -7,6 +7,7 @@ import { DashStatistics } from "../components/dashboard/statistics";
 import { DashModal } from "../components/dashboard/modal";
 import { BackgroundBlobs } from "../components/background";
 import { Header } from "../components/header";
+import { Monitor, Projector, Lightbulb, Snowflake, Plug } from "lucide-react";
 
 interface Device {
   id: number;
@@ -74,11 +75,11 @@ export default function Dashboard() {
   });
 
   const deviceIcons = {
-    computador: "",
-    projetor: "",
-    iluminacao: "",
-    ar_condicionado: "",
-    outro: "",
+    computador: Monitor,
+    projetor: Projector,
+    iluminacao: Lightbulb,
+    ar_condicionado: Snowflake,
+    outro: Plug,
   };
 
   const statusColors = {

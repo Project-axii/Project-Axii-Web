@@ -1,4 +1,5 @@
 import { useTheme } from '../ThemeContext';
+import type { LucideIcon } from "lucide-react";
 
 interface Device {
   id: number;
@@ -14,7 +15,7 @@ interface Device {
 
 interface DeviceListProps {
   filteredDevices: Device[];
-  deviceIcons: Record<Device["tipo"], string>;
+  deviceIcons: Record<Device["tipo"], LucideIcon>;
   statusColors: Record<Device["status"], string>;
   statusLabels: Record<Device["status"], string>;
   toggleDevice: (id: number) => void;
@@ -36,9 +37,9 @@ export function DeviceList({
   const { darkMode } = useTheme();
 
   const statusOptions = [
-    { value: "online", label: "🟢 Online" },
-    { value: "offline", label: "🟡 Offline" },
-    { value: "manutencao", label: "🔴 Manutenção" }
+    { value: "online", label: "Online" },
+    { value: "offline", label: "Offline" },
+    { value: "manutencao", label: "Manutenção" }
   ];
 
   const getDeviceInfo = (device: Device) => [
@@ -64,7 +65,9 @@ export function DeviceList({
     <>
       {filteredDevices.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredDevices.map((device) => (
+          {filteredDevices.map((device) => {
+            const Icon = deviceIcons[device.tipo];
+            return (
             <div
               key={device.id}
               className={`rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden ${
@@ -73,7 +76,7 @@ export function DeviceList({
             >
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
-                  <div className="text-4xl">{deviceIcons[device.tipo]}</div>
+                  <div className="text-4xl"><Icon /></div>
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-semibold ${
                       statusColors[device.status]
@@ -194,7 +197,8 @@ export function DeviceList({
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div

@@ -39,16 +39,33 @@ export function Header(props: HeaderProps) {
             <div
               className={`w-12 h-12 rounded-full flex items-center justify-center ${
                 darkMode
-                  ? "bg-blue-600"
-                  : "bg-gradient-to-br from-blue-500 to-indigo-600"
+                  ? "bg-white"
+                  : "bg-white"
               }`}
             >
-              <svg
-                className="w-6 h-6 text-white"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
+              <svg className="w-8 h-8" viewBox="0 0 244 177" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21.7552 177H0L120.294 2.48715e-05L180.014 87.6449L119.441 177H98.1119L158.259 87.6449L120.294 33.3479L21.7552 177Z" fill="url(#paint0_linear_1_78)"/>
+                <path d="M75.0769 177H51.6154L96.1475 113.297L72.2594 112.87L82.7552 97.0507H130.105L75.0769 177Z" fill="url(#paint1_linear_1_78)"/>
+                <path d="M185.133 92.7754L173.615 110.304L220.965 177H244L185.133 92.7754Z" fill="url(#paint2_linear_1_78)"/>
+                <path d="M184.28 81.6594L173.615 66.6957L222.245 0L231.203 17.1014L184.28 81.6594Z" fill="url(#paint3_linear_1_78)"/>
+                <defs>
+                <linearGradient id="paint0_linear_1_78" x1="187.207" y1="-4.81631" x2="57.6939" y2="176.785" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0071BC"/>
+                <stop offset="0.831731" stop-color="#043556"/>
+                </linearGradient>
+                <linearGradient id="paint1_linear_1_78" x1="187.207" y1="-4.81631" x2="57.6939" y2="176.785" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0071BC"/>
+                <stop offset="0.831731" stop-color="#043556"/>
+                </linearGradient>
+                <linearGradient id="paint2_linear_1_78" x1="187.207" y1="-4.81631" x2="57.6939" y2="176.785" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0071BC"/>
+                <stop offset="0.831731" stop-color="#043556"/>
+                </linearGradient>
+                <linearGradient id="paint3_linear_1_78" x1="187.207" y1="-4.81631" x2="57.6939" y2="176.785" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0071BC"/>
+                <stop offset="0.831731" stop-color="#043556"/>
+                </linearGradient>
+                </defs>
               </svg>
             </div>
             <h1
