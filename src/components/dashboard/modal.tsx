@@ -26,6 +26,18 @@ export function DashModal({
 }: DashModalProps) {
   const { darkMode } = useTheme();
 
+  const formFields = [
+    {
+      key: "nome", label: "Nome do Dispositivo *", type: "text", placeholder: "Ex: PC-01-LAB",
+    },
+    {
+      key: "ip", label: "Endereço IP *", type: "text", placeholder: "Ex: 192.168.1.100",
+    },
+    {
+      key: "sala", label: "Sala", type: "text", placeholder: "Ex: Laboratório 1",
+    },
+  ];
+
   if (!showModal) return null;
 
   return (
@@ -78,41 +90,25 @@ export function DashModal({
         </div>
 
         <div className="p-6 space-y-4">
-          <div>
-            <label
-              className={`block text-sm font-medium mb-2 ${
-                darkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
-              Nome do Dispositivo *
-            </label>
-            <DashInput
-              type="text"
-              value={newDevice.nome}
-              onChange={(e) =>
-                setNewDevice({ ...newDevice, nome: e.target.value })
-              }
-              placeholder="Ex: PC-01-LAB"
-            />
-          </div>
-
-          <div>
-            <label
-              className={`block text-sm font-medium mb-2 ${
-                darkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
-              Endereço IP *
-            </label>
-            <DashInput
-              type="text"
-              value={newDevice.ip}
-              onChange={(e) =>
-                setNewDevice({ ...newDevice, ip: e.target.value })
-              }
-              placeholder="Ex: 192.168.1.100"
-            />
-          </div>
+          {formFields.map((field) => (
+            <div key={field.key}>
+              <label
+                className={`block text-sm font-medium mb-2 ${
+                  darkMode ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                {field.label}
+              </label>
+              <DashInput
+                type={field.type}
+                value={newDevice[field.key as keyof NewDevice]}
+                onChange={(e) =>
+                  setNewDevice({ ...newDevice, [field.key]: e.target.value })
+                }
+                placeholder={field.placeholder}
+              />
+            </div>
+          ))}
 
           <div>
             <label
@@ -140,24 +136,6 @@ export function DashModal({
               <option value="ar_condicionado">Ar Condicionado</option>
               <option value="outro">Outro</option>
             </select>
-          </div>
-
-          <div>
-            <label
-              className={`block text-sm font-medium mb-2 ${
-                darkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
-              Sala
-            </label>
-            <DashInput
-              type="text"
-              value={newDevice.sala}
-              onChange={(e) =>
-                setNewDevice({ ...newDevice, sala: e.target.value })
-              }
-              placeholder="Ex: Laboratório 1"
-            />
           </div>
 
           <div>

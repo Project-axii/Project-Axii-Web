@@ -22,7 +22,49 @@ export function DashFilters({
   salas,
   setShowModal
 }: DashFiltersProps) {
-  const { darkMode } = useTheme(); // ← Pegue darkMode do contexto
+  const { darkMode } = useTheme();
+
+  const filters = [
+    {
+      label: "Tipo",
+      value: filtroTipo,
+      onChange: setFiltroTipo,
+      options: [
+        { value: "", label: "Todos" },
+        { value: "computador", label: "Computador" },
+        { value: "projetor", label: "Projetor" },
+        { value: "iluminacao", label: "Iluminação" },
+        { value: "ar_condicionado", label: "Ar Condicionado" },
+        { value: "outro", label: "Outro" }
+      ]
+    },
+    {
+      label: "Sala",
+      value: filtroSala,
+      onChange: setFiltroSala,
+      options: [
+        { value: "", label: "Todas" },
+        ...salas.map(sala => ({ value: sala, label: sala }))
+      ]
+    },
+    {
+      label: "Status",
+      value: filtroStatus,
+      onChange: setFiltroStatus,
+      options: [
+        { value: "", label: "Todos" },
+        { value: "online", label: "Online" },
+        { value: "offline", label: "Offline" },
+        { value: "manutencao", label: "Manutenção" }
+      ]
+    }
+  ];
+
+  const handleClearFilters = () => {
+    setFiltroTipo("");
+    setFiltroSala("");
+    setFiltroStatus("");
+  };
 
   return (
     <div
@@ -31,69 +73,27 @@ export function DashFilters({
       }`}
     >
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-        <div>
-          <label
-            className={`block text-sm font-medium mb-2 ${
-              darkMode ? "text-gray-300" : "text-gray-700"
-            }`}
-          >
-            Tipo
-          </label>
-          <DashSelect
-            value={filtroTipo}
-            onChange={(e) => setFiltroTipo(e.target.value)}
-            
-          >
-            <option value="">Todos</option>
-            <option value="computador">Computador</option>
-            <option value="projetor">Projetor</option>
-            <option value="iluminacao">Iluminação</option>
-            <option value="ar_condicionado">Ar Condicionado</option>
-            <option value="outro">Outro</option>
-          </DashSelect>
-        </div>
-
-        <div>
-          <label
-            className={`block text-sm font-medium mb-2 ${
-              darkMode ? "text-gray-300" : "text-gray-700"
-            }`}
-          >
-            Sala
-          </label>
-          <DashSelect
-            value={filtroSala}
-            onChange={(e) => setFiltroSala(e.target.value)}
-            
-          >
-            <option value="">Todas</option>
-            {salas.map((sala) => (
-              <option key={sala} value={sala}>
-                {sala}
-              </option>
-            ))}
-          </DashSelect>
-        </div>
-
-        <div>
-          <label
-            className={`block text-sm font-medium mb-2 ${
-              darkMode ? "text-gray-300" : "text-gray-700"
-            }`}
-          >
-            Status
-          </label>
-          <DashSelect
-            value={filtroStatus}
-            onChange={(e) => setFiltroStatus(e.target.value)}
-            
-          >
-            <option value="">Todos</option>
-            <option value="online">Online</option>
-            <option value="offline">Offline</option>
-            <option value="manutencao">Manutenção</option>
-          </DashSelect>
-        </div>
+        {filters.map((filter) => (
+          <div key={filter.label}>
+            <label
+              className={`block text-sm font-medium mb-2 ${
+                darkMode ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              {filter.label}
+            </label>
+            <DashSelect
+              value={filter.value}
+              onChange={(e) => filter.onChange(e.target.value)}
+            >
+              {filter.options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </DashSelect>
+          </div>
+        ))}
 
         <div>
           <label
@@ -104,11 +104,7 @@ export function DashFilters({
             &nbsp;
           </label>
           <button
-            onClick={() => {
-              setFiltroTipo("");
-              setFiltroSala("");
-              setFiltroStatus("");
-            }}
+            onClick={handleClearFilters}
             className={`w-full px-4 py-2 rounded-lg transition-all ${
               darkMode
                 ? "bg-gray-700 text-gray-200 hover:bg-gray-600"

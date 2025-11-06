@@ -35,6 +35,31 @@ export function DeviceList({
 }: DeviceListProps) {
   const { darkMode } = useTheme();
 
+  const statusOptions = [
+    { value: "online", label: "🟢 Online" },
+    { value: "offline", label: "🟡 Offline" },
+    { value: "manutencao", label: "🔴 Manutenção" }
+  ];
+
+  const getDeviceInfo = (device: Device) => [
+    {
+      icon: "M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9",
+      content: device.ip, show: true, className: "break-all"
+    },
+    {
+      icon: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4",
+      content: device.sala, show: !!device.sala, className: ""
+    },
+    {
+      icon: "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+      content: device.descricao, show: !!device.descricao, className: "wrap-break-words", iconClass: "mt-0.5"
+    },
+    {
+      icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
+      content: formatDate(device.ultima_conexao), show: true, className: "text-xs"
+    }
+  ];
+
   return (
     <>
       {filteredDevices.length > 0 ? (
@@ -71,74 +96,26 @@ export function DeviceList({
                     darkMode ? "text-gray-400" : "text-gray-600"
                   }`}
                 >
-                  <p className="flex items-center">
-                    <svg
-                      className="w-4 h-4 mr-2 shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-                      />
-                    </svg>
-                    <span className="break-all">{device.ip}</span>
-                  </p>
-                  {device.sala && (
-                    <p className="flex items-center">
-                      <svg
-                        className="w-4 h-4 mr-2 shrink-0"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                        />
-                      </svg>
-                      {device.sala}
-                    </p>
+                  {getDeviceInfo(device).map((info, idx) => 
+                    info.show ? (
+                      <p key={idx} className={`flex items-${info.iconClass ? 'start' : 'center'} ${info.className}`}>
+                        <svg
+                          className={`w-4 h-4 mr-2 shrink-0 ${info.iconClass || ''}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d={info.icon}
+                          />
+                        </svg>
+                        <span className={info.className}>{info.content}</span>
+                      </p>
+                    ) : null
                   )}
-                  {device.descricao && (
-                    <p className="flex items-start">
-                      <svg
-                        className="w-4 h-4 mr-2 mt-0.5 shrink-0"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      <span className="wrap-break-words">{device.descricao}</span>
-                    </p>
-                  )}
-                  <p className="flex items-center text-xs">
-                    <svg
-                      className="w-4 h-4 mr-2 shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    {formatDate(device.ultima_conexao)}
-                  </p>
                 </div>
 
                 <div
@@ -185,9 +162,11 @@ export function DeviceList({
                         : "bg-white border-gray-300 text-gray-900 focus:ring-blue-500"
                     }`}
                   >
-                    <option value="online">🟢 Online</option>
-                    <option value="offline">🟡 Offline</option>
-                    <option value="manutencao">🔴 Manutenção</option>
+                    {statusOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
                   </select>
 
                   <button
