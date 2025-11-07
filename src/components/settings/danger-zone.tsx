@@ -1,4 +1,4 @@
-import { useTheme } from '../theme-context';
+import { useTheme } from '../theme/theme-context';
 import type { ComponentProps } from 'react';
 
 interface DangerZoneProps extends ComponentProps<"div"> {

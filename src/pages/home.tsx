@@ -2,12 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom"; 
 import { Monitor, Projector, Lightbulb, Snowflake, Plug, ArrowLeft,} from "lucide-react";
 import { BackgroundBlobs } from "../components/background";
-import { useTheme } from "../components/theme-context";
+import { useTheme } from "../components/theme/theme-context";
 import { Header } from "../components/header"; 
-import { DeviceCard } from "../components/dashboard/device-list";
+import { DeviceCard } from "../components/home/device-list";
 import { useDeviceManagement } from "../components/hooks/use-device-management"; 
-import { DashModal } from "../components/dashboard/modal";
-import { RoomCard } from "../components/dashboard/room-card";
+import { DashModal } from "../components/home/modal";
+import { RoomCard } from "../components/home/room-card";
 
 interface Device {
   id: number;
@@ -19,14 +19,6 @@ interface Device {
   status: "online" | "offline" | "manutencao";
   ativo: boolean;
   ultima_conexao: string;
-}
-
-interface NewDevice {
-  nome: string;
-  ip: string;
-  tipo: string;
-  sala: string;
-  descricao: string;
 }
 
 function Statistics({ stats, darkMode }: any) {
@@ -222,14 +214,6 @@ export default function IntegratedDashboard() {
         />
       ) : (
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className={`rounded-xl shadow-lg p-6 mb-8 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-            <h1 className={`text-3xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-              Dashboard - Gerenciamento de Salas
-            </h1>
-            <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              Selecione uma sala para visualizar e gerenciar seus dispositivos
-            </p>
-          </div>
 
           <Statistics stats={stats} darkMode={darkMode} />
 

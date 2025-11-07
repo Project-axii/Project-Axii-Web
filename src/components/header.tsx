@@ -1,4 +1,4 @@
-import { useTheme } from './theme-context';
+import { useTheme } from './theme/theme-context';
 import type { ComponentProps } from 'react';
 
 interface HeaderProps extends ComponentProps<"header"> {
@@ -147,7 +147,7 @@ export function Header(props: HeaderProps) {
                   darkMode
                     ? "bg-blue-600 hover:bg-blue-700 text-white"
                     : "bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
-                }`}
+                } transform hover:scale-[1.02]`}
               >
                 <svg
                   className="w-5 h-5"
@@ -162,7 +162,7 @@ export function Header(props: HeaderProps) {
                     d="M12 4v16m8-8H4"
                   />
                 </svg>
-                <span>Adicionar Dispositivo</span>
+                <span className="hidden md:inline">Adicionar Dispositivo</span>
               </button>
             )}
 

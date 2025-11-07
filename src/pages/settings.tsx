@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"; 
-import { useTheme } from "../components/theme-context";
+import { useTheme } from "../components/theme/theme-context";
 import { Tab } from "../components/settings/tab";
 import { BackgroundBlobs } from "../components/background";
 import { Header } from "../components/header";

@@ -1,6 +1,6 @@
-import { useTheme } from '../theme-context';
+import { useTheme } from '../theme/theme-context';
 import { Tab } from './tab';
-import { DashInput } from '../dashboard/input';
+import { DashInput } from '../home/input';
 import type { ComponentProps } from 'react';
 
 interface LabelProps extends ComponentProps<"label"> {

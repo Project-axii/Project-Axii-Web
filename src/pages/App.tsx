@@ -2,7 +2,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useState } from 'react';
 import LoginScreen from './login';
 import Settings from './settings';
-import DeviceManagement from './dashboard';
+import DeviceManagement from './home';
+import RegisterScreen from './register';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -42,6 +43,18 @@ function App() {
               <Settings />
             ) : (
               <Navigate to="/login" replace />
+            )
+          } 
+        />
+
+          {/* Register */}
+        <Route 
+          path="/register" 
+          element={
+            isLoggedIn ? (
+              <DeviceManagement />
+            ) : (
+              <RegisterScreen/>
             )
           } 
         />
