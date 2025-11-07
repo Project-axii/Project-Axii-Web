@@ -1,4 +1,4 @@
-import { useTheme } from '../ThemeContext';
+import { useTheme } from '../theme-context';
 import { Tab } from './tab';
 import { useState, type ComponentProps } from 'react';
 

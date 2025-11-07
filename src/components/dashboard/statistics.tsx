@@ -1,4 +1,4 @@
-import { useTheme } from "../ThemeContext";
+import { useTheme } from "../theme-context";
 
 interface Stats {
   total: number;

@@ -1,4 +1,4 @@
-import { useTheme } from '../ThemeContext';
+import { useTheme } from '../theme-context';
 import type { ComponentProps } from 'react';
 
 interface DashSelectProps extends ComponentProps<"select"> {

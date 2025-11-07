@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"; 
-import { useTheme } from "../components/ThemeContext";
+import { useTheme } from "../components/theme-context";
 import { Tab } from "../components/settings/tab";
 import { BackgroundBlobs } from "../components/background";
 import { Header } from "../components/header";
-import { ProfileTab } from "../components/settings/profileTab";
-import { SecurityTab } from "../components/settings/securityTab";
-import { NotificationsTab } from "../components/settings/notificationsTab";
-import { PrivacyTab } from "../components/settings/privacyTab";
-import { DangerZone } from "../components/settings/dangerZone";
+import { ProfileTab } from "../components/settings/profile-tab";
+import { SecurityTab } from "../components/settings/security-tab";
+import { NotificationsTab } from "../components/settings/notifications-tab";
+import { PrivacyTab } from "../components/settings/privacy-tab";
+import { DangerZone } from "../components/settings/danger-zone";
 import { User, Shield, Bell, Globe, ArrowLeft  } from "lucide-react";
 
 

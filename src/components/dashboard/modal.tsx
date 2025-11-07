@@ -1,4 +1,4 @@
-import { useTheme } from "../ThemeContext";
+import { useTheme } from "../theme-context";
 import { DashInput } from "./input";
 
 interface NewDevice {

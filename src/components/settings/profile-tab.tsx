@@ -1,4 +1,4 @@
-import { useTheme } from '../ThemeContext';
+import { useTheme } from '../theme-context';
 import { Tab } from './tab';
 import { DashInput } from '../dashboard/input';
 import type { ComponentProps } from 'react';

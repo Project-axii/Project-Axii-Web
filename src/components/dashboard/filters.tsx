@@ -1,5 +1,5 @@
 import { DashSelect } from "./select";
-import { useTheme } from "../ThemeContext";
+import { useTheme } from "../theme-context";
 
 interface DashFiltersProps {
   filtroTipo: string;

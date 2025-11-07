@@ -1,4 +1,4 @@
-import { useTheme } from '../ThemeContext';
+import { useTheme } from '../theme-context';
 import { Tab } from './tab';
 import type { ComponentProps } from 'react';
 
@@ -34,65 +34,61 @@ function ToggleSwitch(props: ToggleSwitchProps) {
   );
 }
 
-interface NotificationPreferences {
-  email_notifications: boolean;
-  device_alerts: boolean;
-  schedule_reminders: boolean;
-  system_updates: boolean;
+interface PrivacyPreferences {
+  public_profile: boolean;
+  show_online_status: boolean;
+  share_activity: boolean;
 }
 
-interface NotificationsTabProps {
+interface PrivacyTabProps {
   darkMode?: boolean;
-  preferences: NotificationPreferences;
-  onPreferenceChange: (key: keyof NotificationPreferences) => void;
+  preferences: PrivacyPreferences;
+  onPreferenceChange: (key: keyof PrivacyPreferences) => void;
+  children?: React.ReactNode;
 }
 
-export function NotificationsTab(props: NotificationsTabProps) {
+export function PrivacyTab(props: PrivacyTabProps) {
   const { 
     darkMode: darkModeProp,
     preferences,
-    onPreferenceChange
+    onPreferenceChange,
+    children
   } = props;
   const { darkMode: darkModeContext } = useTheme();
   
   const darkMode = darkModeProp ?? darkModeContext;
 
-  const notificationItems = [
+  const privacyItems = [
     { 
-      key: "email_notifications" as const, 
-      title: "Notificações por Email", 
-      desc: "Receba atualizações importantes por email" 
+      key: "public_profile" as const, 
+      title: "Perfil Público", 
+      desc: "Permitir que outros usuários vejam seu perfil" 
     },
     { 
-      key: "device_alerts" as const, 
-      title: "Alertas de Dispositivos", 
-      desc: "Notificações quando dispositivos ficam offline" 
+      key: "show_online_status" as const, 
+      title: "Mostrar Status Online", 
+      desc: "Exibir quando você está conectado" 
     },
     { 
-      key: "schedule_reminders" as const, 
-      title: "Agendamentos", 
-      desc: "Lembretes sobre agendamentos próximos" 
-    },
-    { 
-      key: "system_updates" as const, 
-      title: "Atualizações do Sistema", 
-      desc: "Notificações sobre novas funcionalidades" 
+      key: "share_activity" as const, 
+      title: "Compartilhar Logs de Atividade", 
+      desc: "Permitir acesso aos seus logs de sistema" 
     },
   ];
 
   return (
-    <Tab darkMode={darkMode}>
+    <>
       <div className="mb-6">
         <h3 className={`text-2xl font-bold ${darkMode ? "text-white" : "text-gray-800"}`}>
-          Preferências de Notificação
+          Configurações de Privacidade
         </h3>
         <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-          Escolha como e quando você quer receber notificações.
+          Controle suas informações e atividades no sistema.
         </p>
       </div>
       
-      <div className="space-y-4">
-        {notificationItems.map((item) => (
+      <div className="space-y-4 mb-8">
+        {privacyItems.map((item) => (
           <div 
             key={item.key} 
             className={`flex items-center justify-between p-4 rounded-lg ${
@@ -117,6 +113,8 @@ export function NotificationsTab(props: NotificationsTabProps) {
           </div>
         ))}
       </div>
-    </Tab>
+      
+      {children}
+    </>
   );
 }

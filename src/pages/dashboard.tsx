@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom"; 
 import { Monitor, Projector, Lightbulb, Snowflake, Plug, ArrowLeft,} from "lucide-react";
 import { BackgroundBlobs } from "../components/background";
-import { useTheme } from "../components/ThemeContext";
+import { useTheme } from "../components/theme-context";
 import { Header } from "../components/header"; 
 import { DeviceCard } from "../components/dashboard/device-list";
 import { useDeviceManagement } from "../components/hooks/use-device-management"; 
