@@ -21,7 +21,7 @@ interface User {
 }
 
 export default function Settings() {
-  const { darkMode, toggleDarkMode } = useTheme();
+  const { darkMode } = useTheme();
   const navigate = useNavigate(); 
   
   const [activeTab, setActiveTab] = useState("profile");
@@ -49,11 +49,6 @@ export default function Settings() {
     confirmPassword: "",
   });
 
-  const [showPassword, setShowPassword] = useState({
-    current: false,
-    new: false,
-    confirm: false,
-  });
 
   const [preferences, setPreferences] = useState({
     email_notifications: true,

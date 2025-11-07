@@ -7,6 +7,7 @@ interface HeaderProps extends ComponentProps<"header"> {
   onGoToSettings?: () => void;
   onLogout?: () => void;
   title?: string;
+  setShowModal?: (value: boolean) => void;
 }
 
 export function Header(props: HeaderProps) {
@@ -16,6 +17,7 @@ export function Header(props: HeaderProps) {
     onToggleDarkMode,
     onGoToSettings,
     onLogout,
+    setShowModal,
     title = "AXII",
     ...rest 
   } = props;
@@ -138,6 +140,32 @@ export function Header(props: HeaderProps) {
               </button>
             )}
 
+            {setShowModal && (
+              <button
+                onClick={() => setShowModal(true)}
+                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 ${
+                  darkMode
+                    ? "bg-blue-600 hover:bg-blue-700 text-white"
+                    : "bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                }`}
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                <span>Adicionar Dispositivo</span>
+              </button>
+            )}
+
             {onLogout && (
               <button
                 onClick={onLogout}
@@ -163,6 +191,7 @@ export function Header(props: HeaderProps) {
                 <span className="hidden md:inline">Sair</span>
               </button>
             )}
+            
           </div>
         </div>
       </div>
