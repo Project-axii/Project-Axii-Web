@@ -33,9 +33,14 @@ export function DashModal({
     {
       key: "ip", label: "Endereço IP *", type: "text", placeholder: "Ex: 192.168.1.100",
     },
-    {
-      key: "sala", label: "Sala", type: "text", placeholder: "Ex: Laboratório 1",
-    },
+  ];
+
+  const salas = [
+    "Laboratório 1",
+    "Laboratório 2",
+    "Laboratório 3",
+    "Auditório",
+    "Biblioteca",
   ];
 
   if (!showModal) return null;
@@ -109,6 +114,34 @@ export function DashModal({
               />
             </div>
           ))}
+
+          <div>
+            <label
+              className={`block text-sm font-medium mb-2 ${
+                darkMode ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              Sala *
+            </label>
+            <select
+              value={newDevice.sala}
+              onChange={(e) =>
+                setNewDevice({ ...newDevice, sala: e.target.value })
+              }
+              className={`w-full px-4 py-3 rounded-lg border transition-all focus:outline-none focus:ring-2 ${
+                darkMode
+                  ? "bg-gray-700 border-gray-600 text-white focus:ring-blue-500"
+                  : "bg-white border-gray-300 text-gray-900 focus:ring-blue-500"
+              }`}
+            >
+              <option value="">Selecione uma sala...</option>
+              {salas.map((sala) => (
+                <option key={sala} value={sala}>
+                  {sala}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div>
             <label

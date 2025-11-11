@@ -186,7 +186,7 @@ export default function IntegratedDashboard() {
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${
-      darkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-50 to-indigo-100'
+      darkMode ? 'bg-gray-900' : 'bg-linear-to-br from-blue-50 to-indigo-100'
     }`}>
       <BackgroundBlobs darkMode={darkMode} />
       
@@ -196,6 +196,9 @@ export default function IntegratedDashboard() {
         onLogout={handleLogout}
         onGoToSettings={() => navigate('/settings')}
         setShowModal={setShowModal}
+        // userImage="" // foto de perfil 
+        // userName="" // nome do usuário
+        // userEmail="" // email do usuário
       />
 
       {selectedRoom ? (

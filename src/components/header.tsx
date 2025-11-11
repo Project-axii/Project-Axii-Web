@@ -1,5 +1,6 @@
 import { useTheme } from './theme/theme-context';
 import type { ComponentProps } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 interface HeaderProps extends ComponentProps<"header"> {
   darkMode?: boolean;
@@ -8,6 +9,9 @@ interface HeaderProps extends ComponentProps<"header"> {
   onLogout?: () => void;
   title?: string;
   setShowModal?: (value: boolean) => void;
+  userImage?: string;
+  userName?: string;
+  userEmail?: string;
 }
 
 export function Header(props: HeaderProps) {
@@ -19,6 +23,9 @@ export function Header(props: HeaderProps) {
     onLogout,
     setShowModal,
     title = "AXII",
+    userImage,
+    userName = "Usuário",
+    userEmail = "usuario@email.com",
     ...rest 
   } = props;
   const { darkMode: darkModeContext, toggleDarkMode: toggleDarkModeContext } = useTheme();
@@ -26,7 +33,21 @@ export function Header(props: HeaderProps) {
   const darkMode = darkModeProp ?? darkModeContext;
   const handleToggleDarkMode = onToggleDarkMode ?? toggleDarkModeContext;
   
-  const baseClass = `relative z-10 backdrop-blur-sm shadow-md ${
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+  
+  const baseClass = `relative z-50 backdrop-blur-sm shadow-md ${
     darkMode ? "bg-gray-800/80" : "bg-white/80"
   }`;
 
@@ -52,20 +73,20 @@ export function Header(props: HeaderProps) {
                 <path d="M184.28 81.6594L173.615 66.6957L222.245 0L231.203 17.1014L184.28 81.6594Z" fill="url(#paint3_linear_1_78)"/>
                 <defs>
                 <linearGradient id="paint0_linear_1_78" x1="187.207" y1="-4.81631" x2="57.6939" y2="176.785" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#0071BC"/>
-                <stop offset="0.831731" stop-color="#043556"/>
+                <stop stopColor="#0071BC"/>
+                <stop offset="0.831731" stopColor="#043556"/>
                 </linearGradient>
                 <linearGradient id="paint1_linear_1_78" x1="187.207" y1="-4.81631" x2="57.6939" y2="176.785" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#0071BC"/>
-                <stop offset="0.831731" stop-color="#043556"/>
+                <stop stopColor="#0071BC"/>
+                <stop offset="0.831731" stopColor="#043556"/>
                 </linearGradient>
                 <linearGradient id="paint2_linear_1_78" x1="187.207" y1="-4.81631" x2="57.6939" y2="176.785" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#0071BC"/>
-                <stop offset="0.831731" stop-color="#043556"/>
+                <stop stopColor="#0071BC"/>
+                <stop offset="0.831731" stopColor="#043556"/>
                 </linearGradient>
                 <linearGradient id="paint3_linear_1_78" x1="187.207" y1="-4.81631" x2="57.6939" y2="176.785" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#0071BC"/>
-                <stop offset="0.831731" stop-color="#043556"/>
+                <stop stopColor="#0071BC"/>
+                <stop offset="0.831731" stopColor="#043556"/>
                 </linearGradient>
                 </defs>
               </svg>
@@ -109,35 +130,142 @@ export function Header(props: HeaderProps) {
             </button>
 
             {onGoToSettings && (
-              <button
-                onClick={onGoToSettings}
-                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${
-                  darkMode
-                    ? "bg-gray-700 text-gray-300 hover:text-white"
-                    : "bg-gray-100 text-gray-700 hover:text-gray-900"
-                }`}
-                aria-label="Configurações"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setShowDropdown(!showDropdown)}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 overflow-hidden border-2 ${
+                    darkMode
+                      ? "border-gray-600 hover:border-gray-500"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                  aria-label="Menu do usuário"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-              </button>
+                  {userImage ? (
+                    <img 
+                      src={userImage} 
+                      alt="Foto de perfil" 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className={`w-full h-full flex items-center justify-center ${
+                      darkMode ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-700"
+                    }`}>
+                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  )}
+                </button>
+
+                {showDropdown && (
+                  <div className={`absolute right-0 mt-2 w-72 rounded-lg shadow-xl overflow-hidden z-100 ${
+                    darkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"
+                  }`}>
+                    <div className={`px-4 py-3 border-b ${
+                      darkMode ? "border-gray-700" : "border-gray-200"
+                    }`}>
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center overflow-hidden ${
+                          darkMode ? "bg-gray-700" : "bg-gray-200"
+                        }`}>
+                          {userImage ? (
+                            <img 
+                              src={userImage} 
+                              alt="Foto de perfil" 
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <svg className="w-7 h-7 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-sm font-semibold truncate ${
+                            darkMode ? "text-white" : "text-gray-900"
+                          }`}>
+                            {userName}
+                          </p>
+                          <p className={`text-xs truncate ${
+                            darkMode ? "text-gray-400" : "text-gray-500"
+                          }`}>
+                            {userEmail}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="py-1">
+                      <button
+                        onClick={() => {
+                          setShowDropdown(false);
+                          onGoToSettings?.();
+                        }}
+                        className={`w-full px-4 py-2 text-left text-sm flex items-center space-x-3 transition-colors ${
+                          darkMode
+                            ? "text-gray-300 hover:bg-gray-700"
+                            : "text-gray-700 hover:bg-gray-100"
+                        }`}
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                        </svg>
+                        <span>Configurações</span>
+                      </button>
+
+                      {onLogout && (
+                        <>
+                          <div className={`my-1 border-t ${
+                            darkMode ? "border-gray-700" : "border-gray-200"
+                          }`} />
+                          <button
+                            onClick={() => {
+                              setShowDropdown(false);
+                              onLogout();
+                            }}
+                            className={`w-full px-4 py-2 text-left text-sm flex items-center space-x-3 transition-colors ${
+                              darkMode
+                                ? "text-red-400 hover:bg-gray-700"
+                                : "text-red-600 hover:bg-gray-100"
+                            }`}
+                          >
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                              />
+                            </svg>
+                            <span>Sair</span>
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
 
             {setShowModal && (
@@ -163,32 +291,6 @@ export function Header(props: HeaderProps) {
                   />
                 </svg>
                 <span className="hidden md:inline">Adicionar Dispositivo</span>
-              </button>
-            )}
-
-            {onLogout && (
-              <button
-                onClick={onLogout}
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 ${
-                  darkMode
-                    ? "bg-red-600 hover:bg-red-700 text-white"
-                    : "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white"
-                } shadow-lg transform hover:scale-[1.02]`}
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                </svg>
-                <span className="hidden md:inline">Sair</span>
               </button>
             )}
             
