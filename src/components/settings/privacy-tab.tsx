@@ -1,5 +1,4 @@
 import { useTheme } from '../theme/theme-context';
-import { Tab } from './tab';
 import type { ComponentProps } from 'react';
 
 interface ToggleSwitchProps extends Omit<ComponentProps<"input">, 'type'> {
