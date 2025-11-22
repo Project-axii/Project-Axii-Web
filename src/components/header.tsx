@@ -63,7 +63,7 @@ export function Header(props: HeaderProps) {
               className={`w-12 h-12 rounded-full flex items-center justify-center`}
             >
               <img src={`${
-                darkMode ? "../public/white-logo.svg" : "../public/logo.svg"
+                darkMode ? "../white-logo.svg" : "../logo.svg"
               }`} alt="" />
             </div>
             <h1
