@@ -19,33 +19,53 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
         message: string;
     } | null>(null);
 
-    const handleSubmit = () => {
-        if (!email || !password) {
-            setAlert({ type: "error", message: "Preencha todos os campos" });
-            return;
-        }
+    const handleSubmit = async () => {
+    if (!email || !password) {
+        setAlert({ type: "error", message: "Preencha todos os campos" });
+        return;
+    }
 
-        setIsLoading(true);
-        setAlert(null);
+    setIsLoading(true);
+    setAlert(null);
 
-        setTimeout(() => {
-            setIsLoading(false);
+    try {
+        const response = await fetch('http://localhost/tcc-axii/Project-Axii-Web/api/api/login.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
+        });
 
-            if (email === "user@example.com" && password === "123456") {
-                setAlert({ type: "success", message: "Login realizado com sucesso!" });
+        const data = await response.json();
 
-                if (remember) {
-                    localStorage.setItem("token", "fake-jwt-token");
-                }
-
-                setTimeout(() => {
-                    onLogin();
-                }, 500);
-            } else {
-                setAlert({ type: "error", message: "E-mail ou senha inválidos" });
+        if (data.success) {
+            setAlert({ type: "success", message: data.message });
+            
+            if (remember) {
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("user", JSON.stringify(data.user));
             }
-        }, 1500);
-    };
+
+            setTimeout(() => {
+                onLogin();
+            }, 500);
+        } else {
+            setAlert({ type: "error", message: data.message });
+        }
+      } catch (error) {
+          setAlert({ 
+              type: "error", 
+              message: "Erro ao conectar com o servidor" 
+          });
+          console.error('Erro:', error);
+      } finally {
+          setIsLoading(false);
+      }
+  };
 
     const handleKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === "Enter") {

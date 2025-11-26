@@ -1,0 +1,22 @@
+# Habilitar rewrite engine
+RewriteEngine On
+
+# Permitir requisições de qualquer origem (CORS)
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+
+# Redirecionar para HTTPS (opcional)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Proteger arquivos de configuração
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Configurações PHP
+php_flag display_errors Off
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
