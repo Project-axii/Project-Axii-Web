@@ -20,52 +20,70 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
     } | null>(null);
 
     const handleSubmit = async () => {
-    if (!email || !password) {
-        setAlert({ type: "error", message: "Preencha todos os campos" });
-        return;
-    }
+        if (!email || !password) {
+            setAlert({ type: "error", message: "Preencha todos os campos" });
+            return;
+        }
 
-    setIsLoading(true);
-    setAlert(null);
+        setIsLoading(true);
+        setAlert(null);
 
-    try {
-        const response = await fetch('http://localhost/tcc-axii/Project-Axii-Web/api/api/login.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password
-            })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            setAlert({ type: "success", message: data.message });
+        try {
+            const apiUrl = 'http://localhost/tcc-axii/Project-Axii-Web/api/api/login.php';
             
-            if (remember) {
+            console.log('=== LOGIN DEBUG ===');
+            console.log('URL:', apiUrl);
+            console.log('Email:', email);
+            console.log('Password:', password ? '***' : 'vazio');
+            
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            });
+
+            console.log('Status da resposta:', response.status);
+            
+            const data = await response.json();
+            console.log('Dados recebidos:', data);
+
+            if (data.success) {
+                setAlert({ type: "success", message: data.message });
+                
+                console.log('Salvando token:', data.token);
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("user", JSON.stringify(data.user));
-            }
+                
+                const tokenSalvo = localStorage.getItem("token");
+                console.log('Token verificado no localStorage:', tokenSalvo ? 'Salvo com sucesso' : 'ERRO ao salvar');
+                
+                if (!remember) {
+                    console.log('Remember desmarcado - token será removido ao fechar o navegador');
+                    sessionStorage.setItem("tempSession", "true");
+                }
 
-            setTimeout(() => {
-                onLogin();
-            }, 500);
-        } else {
-            setAlert({ type: "error", message: data.message });
+                setTimeout(() => {
+                    onLogin();
+                }, 500);
+            } else {
+                setAlert({ type: "error", message: data.message });
+                console.error('Erro no login:', data.message);
+            }
+        } catch (error) {
+            setAlert({ 
+                type: "error", 
+                message: "Erro ao conectar com o servidor" 
+            });
+            console.error('Erro na requisição:', error);
+        } finally {
+            setIsLoading(false);
         }
-      } catch (error) {
-          setAlert({ 
-              type: "error", 
-              message: "Erro ao conectar com o servidor" 
-          });
-          console.error('Erro:', error);
-      } finally {
-          setIsLoading(false);
-      }
-  };
+    };
 
     const handleKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === "Enter") {
@@ -302,7 +320,9 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
                                     darkMode ? "bg-gray-700 text-gray-300" : "bg-blue-50 text-blue-700"
                                 }`}
                             >
-                                <strong>Teste:</strong> user@example.com / 123456
+                                <strong>Credenciais de teste:</strong><br/>
+                                Email: teste@escola.com<br/>
+                                Senha: 123456
                             </div>
                         </div>
 
@@ -342,21 +362,21 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
             </div>
 
             <style>{`
-        @keyframes float {
-        0%, 100% {
-            transform: translate(0, 0) scale(1);
-        }
-        33% {
-            transform: translate(30px, -30px) scale(1.1);
-        }
-        66% {
-            transform: translate(-20px, 20px) scale(0.9);
-        }
-        }
-        .animate-float {
-        animation: float 20s ease-in-out infinite;
-        }
-    `}</style>
+                @keyframes float {
+                    0%, 100% {
+                        transform: translate(0, 0) scale(1);
+                    }
+                    33% {
+                        transform: translate(30px, -30px) scale(1.1);
+                    }
+                    66% {
+                        transform: translate(-20px, 20px) scale(0.9);
+                    }
+                }
+                .animate-float {
+                    animation: float 20s ease-in-out infinite;
+                }
+            `}</style>
         </div>
     );
 }
