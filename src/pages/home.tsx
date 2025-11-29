@@ -84,7 +84,7 @@ function RoomCard({ room, onClick, darkMode }: any) {
   );
 }
 
-function DeviceTypeSection({ tipo, icon: Icon, label, devices, onToggleAll, onExpand, darkMode, isExpanded, deviceIcons, toggleDevice, updateStatus, deleteDevice, formatDate }: any) {
+function DeviceTypeSection({icon: Icon, label, devices, onToggleAll, onExpand, darkMode, isExpanded, deviceIcons, toggleDevice, updateStatus, deleteDevice, formatDate }: any) {
   const allOn = devices.length > 0 && devices.every((d: Device) => d.ativo && d.status === "online");
   const someOn = devices.some((d: Device) => d.ativo && d.status === "online");
   
