@@ -84,7 +84,7 @@ function RoomCard({ room, onClick, darkMode }: any) {
   );
 }
 
-function DeviceTypeSection({icon: Icon, label, devices, onToggleAll, onExpand, darkMode, isExpanded, deviceIcons, toggleDevice, updateStatus, deleteDevice, formatDate }: any) {
+function DeviceTypeSection({icon: Icon, label, devices, onExpand, darkMode, isExpanded, deviceIcons, toggleDevice, updateStatus, deleteDevice, formatDate }: any) {
   const controllableDevices = devices.filter((d: Device) => d.status !== "manutencao");
   const activeControllableCount = controllableDevices.filter((d: Device) => d.ativo).length;
   const allOn = controllableDevices.length > 0 && activeControllableCount === controllableDevices.length;
