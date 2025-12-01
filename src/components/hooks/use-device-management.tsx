@@ -36,110 +36,33 @@ export function useDeviceManagement() {
   });
   const [showModal, setShowModal] = useState(false);
 
-  const getToken = () => {
-    const token = localStorage.getItem("token");
-    console.log("=== TOKEN DEBUG ===");
-    console.log("Token encontrado:", !!token);
-    console.log("Token preview:", token ? token.substring(0, 30) + "..." : "null");
-    return token;
-  };
-
   const getHeaders = (): HeadersInit => {
-    const token = getToken();
-    const headers: Record<string, string> = {
+    const token = localStorage.getItem("token");
+    return {
       "Content-Type": "application/json",
+      Authorization: token ? `Bearer ${token}` : "",
     };
-
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-      console.log("Header Authorization adicionado");
-    } else {
-      console.error("Token não encontrado - requisição sem autenticação!");
-    }
-
-    return headers;
   };
 
   const handleResponse = async (response: Response) => {
-    console.log("=== RESPONSE DEBUG ===");
-    console.log("Status:", response.status);
-    console.log("Status Text:", response.statusText);
-    console.log("Headers:", Object.fromEntries(response.headers.entries()));
-
     const text = await response.text();
-    console.log("Response body (raw):", text.substring(0, 500));
+    const data = text ? JSON.parse(text) : null;
 
-    if (!text || text.trim() === "") {
-      throw new Error(`Resposta vazia do servidor (Status: ${response.status})`);
-    }
-
-    let data;
-    try {
-      data = JSON.parse(text);
-      console.log("Response data (parsed):", data);
-    } catch (parseError) {
-      console.error("Erro ao fazer parse do JSON:", parseError);
-      console.error("Texto recebido:", text);
-      throw new Error("Resposta inválida do servidor (não é JSON válido)");
-    }
-
-    if (!response.ok) {
-      const errorMsg = data.message || `Erro HTTP ${response.status}: ${response.statusText}`;
-      
-      if (response.status === 401) {
-        console.error("Token inválido ou expirado - limpando sessão");
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        
-        setTimeout(() => {
-          window.location.href = "/login";
-        }, 2000);
-      }
-      
-      throw new Error(errorMsg);
-    }
-
+    if (!response.ok) throw new Error(data?.message || "Erro na API");
     return data;
   };
 
   const loadDevices = useCallback(async () => {
-    const token = getToken();
-    
-    if (!token) {
-      console.error("Usuário não autenticado");
-      setError("Você precisa fazer login para acessar os dispositivos");
-      return;
-    }
-    
     setLoading(true);
-    setError(null);
-    
     try {
-      const url = `${API_URL}/devices/list.php`;
-      console.log("=== FETCH DEVICES ===");
-      console.log("URL:", url);
-      console.log("Method: GET");
-      console.log("Headers:", getHeaders());
-      
-      const response = await fetch(url, {
+      const response = await fetch(`${API_URL}/devices/list.php`, {
         method: "GET",
         headers: getHeaders(),
       });
-
       const data = await handleResponse(response);
-
-      if (data.success) {
-        console.log("Dispositivos carregados:", data.total);
-        setDevices(data.data || []);
-      } else {
-        const errorMsg = data.message || "Erro ao carregar dispositivos";
-        setError(errorMsg);
-        console.error("❌", errorMsg);
-      }
+      if (data?.success) setDevices(data.data || []);
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Erro de conexão com o servidor";
-      setError(errorMsg);
-      console.error("Erro na requisição:", err);
+      setError(err instanceof Error ? err.message : "Erro ao carregar devices");
     } finally {
       setLoading(false);
     }
@@ -150,42 +73,21 @@ export function useDeviceManagement() {
   }, [loadDevices]);
 
   const handleAddDevice = useCallback(async () => {
-    if (!newDevice.nome || !newDevice.ip || !newDevice.tipo) {
-      alert("Por favor, preencha os campos obrigatórios (Nome, IP, Tipo).");
-      return;
-    }
-
     setLoading(true);
-    setError(null);
-
     try {
-      console.log("=== ADD DEVICE ===");
-      console.log("Data:", newDevice);
-      
       const response = await fetch(`${API_URL}/devices/create.php`, {
         method: "POST",
         headers: getHeaders(),
         body: JSON.stringify(newDevice),
       });
-
       const data = await handleResponse(response);
-
       if (data.success) {
-        console.log("Dispositivo adicionado");
         setNewDevice({ nome: "", ip: "", tipo: "", sala: "", descricao: "" });
         setShowModal(false);
         await loadDevices();
-        alert("Dispositivo adicionado com sucesso!");
-      } else {
-        const errorMsg = data.message || "Erro ao adicionar dispositivo";
-        setError(errorMsg);
-        alert(errorMsg);
       }
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Erro de conexão com o servidor";
-      setError(errorMsg);
-      alert(errorMsg);
-      console.error("❌", err);
+      alert(err instanceof Error ? err.message : "Erro ao adicionar device");
     } finally {
       setLoading(false);
     }
@@ -193,30 +95,18 @@ export function useDeviceManagement() {
 
   const toggleDevice = useCallback(async (id: number) => {
     setLoading(true);
-    setError(null);
-
     try {
       const response = await fetch(`${API_URL}/devices/toggle.php`, {
         method: "POST",
         headers: getHeaders(),
         body: JSON.stringify({ id }),
       });
-
       const data = await handleResponse(response);
-
       if (data.success) {
-        console.log("Status alterado");
         await loadDevices();
-      } else {
-        const errorMsg = data.message || "Erro ao alterar status";
-        setError(errorMsg);
-        alert(errorMsg);
       }
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Erro de conexão com o servidor";
-      setError(errorMsg);
-      alert(errorMsg);
-      console.error("❌", err);
+      alert(err instanceof Error ? err.message : "Erro ao alternar device");
     } finally {
       setLoading(false);
     }
@@ -224,66 +114,34 @@ export function useDeviceManagement() {
 
   const updateStatus = useCallback(async (id: number, status: Device["status"]) => {
     setLoading(true);
-    setError(null);
-
     try {
       const response = await fetch(`${API_URL}/devices/update.php`, {
         method: "POST",
         headers: getHeaders(),
         body: JSON.stringify({ id, status }),
       });
-
       const data = await handleResponse(response);
-
-      if (data.success) {
-        console.log("Status atualizado");
-        await loadDevices();
-      } else {
-        const errorMsg = data.message || "Erro ao atualizar status";
-        setError(errorMsg);
-        alert(errorMsg);
-      }
+      if (data.success) await loadDevices();
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Erro de conexão com o servidor";
-      setError(errorMsg);
-      alert(errorMsg);
-      console.error("❌", err);
+      alert("Erro ao atualizar status");
     } finally {
       setLoading(false);
     }
   }, [loadDevices]);
 
   const deleteDevice = useCallback(async (id: number) => {
-    if (!window.confirm("Deseja realmente excluir este dispositivo?")) {
-      return;
-    }
-
+    if (!window.confirm("Deseja excluir?")) return;
     setLoading(true);
-    setError(null);
-
     try {
       const response = await fetch(`${API_URL}/devices/delete.php`, {
         method: "DELETE",
         headers: getHeaders(),
         body: JSON.stringify({ id }),
       });
-
       const data = await handleResponse(response);
-
-      if (data.success) {
-        console.log("Dispositivo excluído");
-        await loadDevices();
-        alert("Dispositivo excluído com sucesso!");
-      } else {
-        const errorMsg = data.message || "Erro ao excluir dispositivo";
-        setError(errorMsg);
-        alert(errorMsg);
-      }
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Erro de conexão com o servidor";
-      setError(errorMsg);
-      alert(errorMsg);
-      console.error("❌", err);
+      if (data.success) await loadDevices();
+    } catch {
+      alert("Erro ao excluir device");
     } finally {
       setLoading(false);
     }
@@ -301,6 +159,5 @@ export function useDeviceManagement() {
     toggleDevice,
     updateStatus,
     deleteDevice,
-    reloadDevices: loadDevices,
   };
 }

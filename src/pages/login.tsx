@@ -116,7 +116,7 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
                                     : "bg-gradient-to-br from-blue-500 to-indigo-600"
                             }`}
                         >
-                            <img className="w-15 h-15" src="../white-logo.svg" alt="" />
+                            <img className="w-15 h-15" src="https://lfcostldktmoevensqdj.supabase.co/storage/v1/object/public/axii/white-logo.svg" alt="" />
                         </div>
                         <h1
                             className={`text-3xl font-bold mb-2 ${
