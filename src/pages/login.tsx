@@ -313,17 +313,6 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
                             >
                                 {isLoading ? "Entrando..." : "Entrar"}
                             </button>
-
-                            {/* Credenciais de teste */}
-                            <div
-                                className={`mt-4 p-3 rounded-lg text-xs ${
-                                    darkMode ? "bg-gray-700 text-gray-300" : "bg-blue-50 text-blue-700"
-                                }`}
-                            >
-                                <strong>Credenciais de teste:</strong><br/>
-                                Email: teste@escola.com<br/>
-                                Senha: 123456
-                            </div>
                         </div>
 
                         {/* Divider */}
