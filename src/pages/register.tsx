@@ -4,7 +4,7 @@ import { AuthInput } from "../components/Authentication/input";
 import { useTheme } from "../components/theme/theme-context";
 import { ThemeToggle } from "../components/theme/theme-toggle";
 
-const API_URL = "http://localhost/tcc-axii/Project-Axii-Web/api/api/register.php";
+const API_URL = "http://localhost/tcc-axii/Project-axii-api/api/register.php";
 
 export default function RegisterScreen() {
   const { darkMode } = useTheme();

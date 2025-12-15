@@ -29,7 +29,7 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
         setAlert(null);
 
         try {
-            const apiUrl = 'http://localhost/tcc-axii/Project-Axii-Web/api/api/login.php';
+            const apiUrl = 'http://localhost/tcc-axii/Project-axii-api/api/login.php';
             
             console.log('=== LOGIN DEBUG ===');
             console.log('URL:', apiUrl);

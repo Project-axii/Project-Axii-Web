@@ -21,7 +21,7 @@ interface NewDevice {
   descricao: string;
 }
 
-const API_URL = "http://localhost/tcc-axii/Project-Axii-Web/api/api";
+const API_URL = "http://localhost/tcc-axii/Project-axii-api/api";
 
 export function useDeviceManagement() {
   const [devices, setDevices] = useState<Device[]>([]);
