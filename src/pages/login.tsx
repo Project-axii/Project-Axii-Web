@@ -19,7 +19,7 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
         message: string;
     } | null>(null);
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!email || !password) {
             setAlert({ type: "error", message: "Preencha todos os campos" });
             return;
@@ -28,23 +28,61 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
         setIsLoading(true);
         setAlert(null);
 
-        setTimeout(() => {
-            setIsLoading(false);
+        try {
+            const apiUrl = 'http://localhost/tcc-axii/Project-axii-api/api/auth/login.php';
+            
+            console.log('=== LOGIN DEBUG ===');
+            console.log('URL:', apiUrl);
+            console.log('Email:', email);
+            console.log('Password:', password ? '***' : 'vazio');
+            
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            });
 
-            if (email === "user@example.com" && password === "123456") {
-                setAlert({ type: "success", message: "Login realizado com sucesso!" });
+            console.log('Status da resposta:', response.status);
+            
+            const data = await response.json();
+            console.log('Dados recebidos:', data);
 
-                if (remember) {
-                    localStorage.setItem("token", "fake-jwt-token");
+            if (data.success) {
+                setAlert({ type: "success", message: data.message });
+                
+                console.log('Salvando token:', data.token);
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("user", JSON.stringify(data.user));
+                
+                const tokenSalvo = localStorage.getItem("token");
+                console.log('Token verificado no localStorage:', tokenSalvo ? 'Salvo com sucesso' : 'ERRO ao salvar');
+                
+                if (!remember) {
+                    console.log('Remember desmarcado - token será removido ao fechar o navegador');
+                    sessionStorage.setItem("tempSession", "true");
                 }
 
                 setTimeout(() => {
                     onLogin();
                 }, 500);
             } else {
-                setAlert({ type: "error", message: "E-mail ou senha inválidos" });
+                setAlert({ type: "error", message: data.message });
+                console.error('Erro no login:', data.message);
             }
-        }, 1500);
+        } catch (error) {
+            setAlert({ 
+                type: "error", 
+                message: "Erro ao conectar com o servidor" 
+            });
+            console.error('Erro na requisição:', error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -78,7 +116,7 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
                                     : "bg-gradient-to-br from-blue-500 to-indigo-600"
                             }`}
                         >
-                            <img className="w-15 h-15" src="../white-logo.svg" alt="" />
+                            <img className="w-15 h-15" src="https://lfcostldktmoevensqdj.supabase.co/storage/v1/object/public/axii/white-logo.svg" alt="" />
                         </div>
                         <h1
                             className={`text-3xl font-bold mb-2 ${
@@ -275,15 +313,6 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
                             >
                                 {isLoading ? "Entrando..." : "Entrar"}
                             </button>
-
-                            {/* Credenciais de teste */}
-                            <div
-                                className={`mt-4 p-3 rounded-lg text-xs ${
-                                    darkMode ? "bg-gray-700 text-gray-300" : "bg-blue-50 text-blue-700"
-                                }`}
-                            >
-                                <strong>Teste:</strong> user@example.com / 123456
-                            </div>
                         </div>
 
                         {/* Divider */}
@@ -322,21 +351,21 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
             </div>
 
             <style>{`
-        @keyframes float {
-        0%, 100% {
-            transform: translate(0, 0) scale(1);
-        }
-        33% {
-            transform: translate(30px, -30px) scale(1.1);
-        }
-        66% {
-            transform: translate(-20px, 20px) scale(0.9);
-        }
-        }
-        .animate-float {
-        animation: float 20s ease-in-out infinite;
-        }
-    `}</style>
+                @keyframes float {
+                    0%, 100% {
+                        transform: translate(0, 0) scale(1);
+                    }
+                    33% {
+                        transform: translate(30px, -30px) scale(1.1);
+                    }
+                    66% {
+                        transform: translate(-20px, 20px) scale(0.9);
+                    }
+                }
+                .animate-float {
+                    animation: float 20s ease-in-out infinite;
+                }
+            `}</style>
         </div>
     );
 }

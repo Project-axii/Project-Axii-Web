@@ -4,6 +4,8 @@ import { AuthInput } from "../components/Authentication/input";
 import { useTheme } from "../components/theme/theme-context";
 import { ThemeToggle } from "../components/theme/theme-toggle";
 
+const API_URL = "http://localhost/tcc-axii/Project-axii-api/api/auth/register.php";
+
 export default function RegisterScreen() {
   const { darkMode } = useTheme();
   const [formData, setFormData] = useState({
@@ -62,23 +64,55 @@ export default function RegisterScreen() {
     return true;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) return;
 
     setIsLoading(true);
     setAlert(null);
 
-    setTimeout(() => {
-      setIsLoading(false);
-      setAlert({
-        type: "success",
-        message: "Cadastro realizado com sucesso! Redirecionando...",
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
       });
 
-      setTimeout(() => {
-        window.location.href = "/login";
-      }, 1500);
-    }, 1500);
+      const data = await response.json();
+
+      if (data.success) {
+        // Salvar token e dados do usuário
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        setAlert({
+          type: "success",
+          message: "Cadastro realizado com sucesso! Redirecionando...",
+        });
+
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 1500);
+      } else {
+        setAlert({
+          type: "error",
+          message: data.message || "Erro ao realizar cadastro",
+        });
+      }
+    } catch (error) {
+      setAlert({
+        type: "error",
+        message: "Erro de conexão com o servidor. Tente novamente.",
+      });
+      console.error("Erro:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

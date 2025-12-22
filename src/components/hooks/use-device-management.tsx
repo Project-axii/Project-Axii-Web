@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface Device {
   id: number;
@@ -10,6 +10,7 @@ interface Device {
   status: "online" | "offline" | "manutencao";
   ativo: boolean;
   ultima_conexao: string;
+  data_cadastro?: string;
 }
 
 interface NewDevice {
@@ -20,88 +21,12 @@ interface NewDevice {
   descricao: string;
 }
 
-const initialDevices: Device[] = [
-  {
-    id: 1,
-    nome: "PC-01-LAB",
-    ip: "192.168.1.100",
-    tipo: "computador",
-    sala: "Laboratório 1",
-    descricao: "Computador principal do laboratório",
-    status: "online",
-    ativo: true,
-    ultima_conexao: new Date().toISOString(),
-  },
-  {
-    id: 2,
-    nome: "PROJETOR-LAB-01",
-    ip: "192.168.1.105",
-    tipo: "projetor",
-    sala: "Laboratório 1",
-    descricao: "Projetor multimídia 4K",
-    status: "online",
-    ativo: true,
-    ultima_conexao: new Date().toISOString(),
-  },
-  {
-    id: 3,
-    nome: "AR-COND-LAB-01",
-    ip: "192.168.1.110",
-    tipo: "ar_condicionado",
-    sala: "Laboratório 1",
-    descricao: "Ar condicionado 24000 BTUs",
-    status: "offline",
-    ativo: false,
-    ultima_conexao: new Date(Date.now() - 3600000).toISOString(),
-  },
-  {
-    id: 4,
-    nome: "LUZ-LAB-01",
-    ip: "192.168.1.115",
-    tipo: "iluminacao",
-    sala: "Laboratório 1",
-    descricao: "Sistema de iluminação LED",
-    status: "online",
-    ativo: true,
-    ultima_conexao: new Date().toISOString(),
-  },
-  {
-    id: 5,
-    nome: "PROJETOR-SALA-A",
-    ip: "192.168.1.101",
-    tipo: "projetor",
-    sala: "Sala A",
-    descricao: "Projetor multimídia",
-    status: "offline",
-    ativo: true,
-    ultima_conexao: new Date(Date.now() - 86400000).toISOString(),
-  },
-  {
-    id: 6,
-    nome: "PC-SALA-A-01",
-    ip: "192.168.1.120",
-    tipo: "computador",
-    sala: "Sala A",
-    descricao: "Computador da Sala A",
-    status: "online",
-    ativo: true,
-    ultima_conexao: new Date().toISOString(),
-  },
-  {
-    id: 7,
-    nome: "AR-COND-02",
-    ip: "192.168.1.102",
-    tipo: "ar_condicionado",
-    sala: "Sala B",
-    descricao: "Ar condicionado 18000 BTUs",
-    status: "manutencao",
-    ativo: false,
-    ultima_conexao: new Date(Date.now() - 172800000).toISOString(),
-  },
-];
+const API_URL = "http://localhost/tcc-axii/Project-axii-api/api";
 
 export function useDeviceManagement() {
-  const [devices, setDevices] = useState<Device[]>(initialDevices);
+  const [devices, setDevices] = useState<Device[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [newDevice, setNewDevice] = useState<NewDevice>({
     nome: "",
     ip: "",
@@ -111,46 +36,121 @@ export function useDeviceManagement() {
   });
   const [showModal, setShowModal] = useState(false);
 
-  const handleAddDevice = useCallback(() => {
-    if (!newDevice.nome || !newDevice.ip || !newDevice.tipo) {
-      alert("Por favor, preencha os campos obrigatórios (Nome, IP, Tipo).");
-      return;
-    }
-
-    const newId = devices.length > 0 ? Math.max(...devices.map(d => d.id)) + 1 : 1;
-    const deviceToAdd: Device = {
-      id: newId,
-      nome: newDevice.nome,
-      ip: newDevice.ip,
-      tipo: newDevice.tipo as Device["tipo"],
-      sala: newDevice.sala || "Não Atribuída",
-      descricao: newDevice.descricao || "",
-      status: "online",
-      ativo: true,
-      ultima_conexao: new Date().toISOString(),
+  const getHeaders = (): HeadersInit => {
+    const token = localStorage.getItem("token");
+    return {
+      "Content-Type": "application/json",
+      Authorization: token ? `Bearer ${token}` : "",
     };
+  };
 
-    setDevices(prevDevices => [...prevDevices, deviceToAdd]);
-    setNewDevice({ nome: "", ip: "", tipo: "", sala: "", descricao: "" });
-    setShowModal(false);
-  }, [devices, newDevice]);
+  const handleResponse = async (response: Response) => {
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : null;
 
-  const toggleDevice = useCallback((id: number) => {
-    setDevices(prevDevices => prevDevices.map(d => d.id === id ? { ...d, ativo: !d.ativo } : d));
-  }, []);
+    if (!response.ok) throw new Error(data?.message || "Erro na API");
+    return data;
+  };
 
-  const updateStatus = useCallback((id: number, status: Device["status"]) => {
-    setDevices(prevDevices => prevDevices.map(d => d.id === id ? { ...d, status } : d));
-  }, []);
-
-  const deleteDevice = useCallback((id: number) => {
-    if (window.confirm("Deseja realmente excluir este dispositivo?")) {
-      setDevices(prevDevices => prevDevices.filter(d => d.id !== id));
+  const loadDevices = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/devices/list.php`, {
+        method: "GET",
+        headers: getHeaders(),
+      });
+      const data = await handleResponse(response);
+      if (data?.success) setDevices(data.data || []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao carregar devices");
+    } finally {
+      setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    loadDevices();
+  }, [loadDevices]);
+
+  const handleAddDevice = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/devices/create.php`, {
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify(newDevice),
+      });
+      const data = await handleResponse(response);
+      if (data.success) {
+        setNewDevice({ nome: "", ip: "", tipo: "", sala: "", descricao: "" });
+        setShowModal(false);
+        await loadDevices();
+      }
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Erro ao adicionar device");
+    } finally {
+      setLoading(false);
+    }
+  }, [newDevice, loadDevices]);
+
+  const toggleDevice = useCallback(async (id: number) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/devices/toggle.php`, {
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify({ id }),
+      });
+      const data = await handleResponse(response);
+      if (data.success) {
+        await loadDevices();
+      }
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Erro ao alternar device");
+    } finally {
+      setLoading(false);
+    }
+  }, [loadDevices]);
+
+  const updateStatus = useCallback(async (id: number, status: Device["status"]) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/devices/update.php`, {
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify({ id, status }),
+      });
+      const data = await handleResponse(response);
+      if (data.success) await loadDevices();
+    } catch (err) {
+      alert("Erro ao atualizar status");
+    } finally {
+      setLoading(false);
+    }
+  }, [loadDevices]);
+
+  const deleteDevice = useCallback(async (id: number) => {
+    if (!window.confirm("Deseja excluir?")) return;
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/devices/delete.php`, {
+        method: "DELETE",
+        headers: getHeaders(),
+        body: JSON.stringify({ id }),
+      });
+      const data = await handleResponse(response);
+      if (data.success) await loadDevices();
+    } catch {
+      alert("Erro ao excluir device");
+    } finally {
+      setLoading(false);
+    }
+  }, [loadDevices]);
 
   return {
     devices,
+    loading,
+    error,
     newDevice,
     setNewDevice,
     showModal,

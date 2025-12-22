@@ -84,9 +84,22 @@ function RoomCard({ room, onClick, darkMode }: any) {
   );
 }
 
-function DeviceTypeSection({icon: Icon, label, devices, onToggleAll, onExpand, darkMode, isExpanded, deviceIcons, toggleDevice, updateStatus, deleteDevice, formatDate }: any) {
-  const allOn = devices.length > 0 && devices.every((d: Device) => d.ativo && d.status === "online");
-  const someOn = devices.some((d: Device) => d.ativo && d.status === "online");
+function DeviceTypeSection({icon: Icon, label, devices, onExpand, darkMode, isExpanded, deviceIcons, toggleDevice, updateStatus, deleteDevice, formatDate }: any) {
+  const controllableDevices = devices.filter((d: Device) => d.status !== "manutencao");
+  const activeControllableCount = controllableDevices.filter((d: Device) => d.ativo).length;
+  const allOn = controllableDevices.length > 0 && activeControllableCount === controllableDevices.length;
+  const someOn = activeControllableCount > 0 && activeControllableCount < controllableDevices.length;
+  const noneOn = activeControllableCount === 0;
+  
+  const handleToggleAll = () => {
+    const shouldTurnOn = activeControllableCount <= controllableDevices.length / 2;
+    
+    controllableDevices.forEach((device: Device) => {
+      if (device.ativo !== shouldTurnOn) {
+        toggleDevice(device.id);
+      }
+    });
+  };
   
   return (
     <div className={`rounded-xl shadow-lg overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
@@ -110,15 +123,22 @@ function DeviceTypeSection({icon: Icon, label, devices, onToggleAll, onExpand, d
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                onToggleAll();
+                handleToggleAll();
               }}
+              disabled={controllableDevices.length === 0}
               className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
-                allOn ? 'bg-green-500' : someOn ? 'bg-yellow-500' : darkMode ? 'bg-gray-700' : 'bg-gray-300'
+                controllableDevices.length === 0 
+                  ? 'opacity-50 cursor-not-allowed bg-gray-400'
+                  : allOn 
+                    ? 'bg-green-500' 
+                    : someOn 
+                      ? 'bg-yellow-500' 
+                      : darkMode ? 'bg-gray-700' : 'bg-gray-300'
               }`}
             >
               <span
                 className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                  allOn || someOn ? 'translate-x-7' : 'translate-x-1'
+                  allOn ? 'translate-x-7' : noneOn ? 'translate-x-1' : 'translate-x-4'
                 }`}
               />
             </button>
@@ -179,7 +199,6 @@ function RoomDetails({ sala, devices, onBack, darkMode, deviceIcons, tipoLabels,
     manutencao: roomDevices.filter((d: Device) => d.status === "manutencao").length,
   };
 
-  // Agrupar dispositivos da sala por tipo
     const tipos = Array.from(new Set(roomDevices.map((d: Device) => d.tipo))) as Device["tipo"][];
     const typeGroups = tipos.map((tipo: Device["tipo"]) => ({
       tipo,
