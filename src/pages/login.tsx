@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BackgroundBlobs } from "../components/background";
 import { ThemeToggle } from "../components/theme/theme-toggle";
 import { useTheme } from "../components/theme/theme-context";
@@ -14,10 +14,36 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
     const [remember, setRemember] = useState<boolean>(false);
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [apiUrl, setApiUrl] = useState<string>("");
+    const [loadingApiUrl, setLoadingApiUrl] = useState<boolean>(true);
     const [alert, setAlert] = useState<{
         type: "success" | "error";
         message: string;
     } | null>(null);
+
+    useEffect(() => {
+        const fetchApiUrl = async () => {
+            try {
+                const response = await fetch('https://raw.githubusercontent.com/Project-axii/sistema-redirecionamento/refs/heads/main/sistema.json');
+                const data = await response.json();
+                
+                if (data.status === 'success' && data.link) {
+                    setApiUrl(data.link);
+                    console.log('URL da API carregada:', data.link);
+                } else {
+                    setApiUrl('http://localhost/tcc-axii/Project-axii-api');
+                    console.warn('Link não encontrado no JSON, usando localhost');
+                }
+            } catch (error) {
+                console.error('Erro ao buscar URL da API:', error);
+                setApiUrl('http://localhost/tcc-axii/Project-axii-api');
+            } finally {
+                setLoadingApiUrl(false);
+            }
+        };
+
+        fetchApiUrl();
+    }, []);
 
     const handleSubmit = async () => {
         if (!email || !password) {
@@ -25,22 +51,28 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
             return;
         }
 
+        if (!apiUrl) {
+            setAlert({ type: "error", message: "Aguardando configuração da API..." });
+            return;
+        }
+
         setIsLoading(true);
         setAlert(null);
 
         try {
-            const apiUrl = 'http://localhost/tcc-axii/Project-axii-api/api/auth/login.php';
+            const loginEndpoint = `${apiUrl}/tcc-axii/Project-axii-api/api/auth/login.php`;
             
             console.log('=== LOGIN DEBUG ===');
-            console.log('URL:', apiUrl);
+            console.log('URL:', loginEndpoint);
             console.log('Email:', email);
             console.log('Password:', password ? '***' : 'vazio');
             
-            const response = await fetch(apiUrl, {
+            const response = await fetch(loginEndpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                mode: 'cors',
                 body: JSON.stringify({
                     email: email,
                     password: password
@@ -304,14 +336,14 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
                             {/* Submit Button */}
                             <button
                                 onClick={handleSubmit}
-                                disabled={isLoading}
+                                disabled={isLoading || loadingApiUrl}
                                 className={`w-full py-3 px-4 rounded-lg font-medium text-white transition-all duration-200 ${
-                                    isLoading
+                                    isLoading || loadingApiUrl
                                         ? "bg-gray-400 cursor-not-allowed"
                                         : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transform hover:scale-[1.02] active:scale-[0.98]"
                                 } shadow-lg`}
                             >
-                                {isLoading ? "Entrando..." : "Entrar"}
+                                {loadingApiUrl ? "Configurando..." : isLoading ? "Entrando..." : "Entrar"}
                             </button>
                         </div>
 
