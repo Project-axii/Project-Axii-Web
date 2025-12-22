@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; 
 import { useTheme } from "../components/theme/theme-context";
 import { Tab } from "../components/settings/tab";
@@ -9,15 +9,14 @@ import { SecurityTab } from "../components/settings/security-tab";
 import { NotificationsTab } from "../components/settings/notifications-tab";
 import { PrivacyTab } from "../components/settings/privacy-tab";
 import { DangerZone } from "../components/settings/danger-zone";
-import { User, Shield, Bell, Globe, ArrowLeft  } from "lucide-react";
+import { User, Shield, Bell, Globe, ArrowLeft } from "lucide-react";
 
-
-interface User {
+interface UserData {
   id: string;
   nome: string;
   email: string;
-  foto: string;
-  tipo_usuario: string;
+  tipo_usuario?: string;
+  profile_image?: string;
 }
 
 export default function Settings() {
@@ -28,27 +27,13 @@ export default function Settings() {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState<"success" | "error">("success");
-
-  const [user, setUser] = useState<User>({
-    id: "1",
-    nome: "João Silva",
-    email: "joao.silva@example.com",
-    foto: "https://ui-avatars.com/api/?name=Joao+Silva&background=4F46E5&color=fff",
-    tipo_usuario: "administrador",
-  });
-
-  const [profileForm, setProfileForm] = useState({
-    nome: user.nome,
-    email: user.email,
-    foto: user.foto,
-  });
+  const [userData, setUserData] = useState<UserData | null>(null);
 
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
-
 
   const [preferences, setPreferences] = useState({
     email_notifications: true,
@@ -60,6 +45,24 @@ export default function Settings() {
     share_activity: false,
   });
 
+  useEffect(() => {
+    const userString = localStorage.getItem('user');
+    if (userString) {
+      try {
+        const user: UserData = JSON.parse(userString);
+        setUserData(user);
+      } catch (error) {
+        console.error('Erro ao carregar dados do usuário:', error);
+        displayAlert("Erro ao carregar dados do usuário", "error");
+      }
+    } else {
+      displayAlert("Usuário não encontrado. Faça login novamente.", "error");
+      setTimeout(() => {
+        handleLogout();
+      }, 2000);
+    }
+  }, []);
+
   const displayAlert = (message: string, type: "success" | "error") => {
     setAlertMessage(message);
     setAlertType(type);
@@ -67,12 +70,21 @@ export default function Settings() {
     setTimeout(() => setShowAlert(false), 5000);
   };
 
-  const handleUpdateProfile = () => {
-    if (!profileForm.nome || !profileForm.email) {
+  const handleUpdateProfile = (profileData: { nome: string; email: string; foto: string }) => {
+    if (!profileData.nome || !profileData.email) {
       displayAlert("Preencha todos os campos obrigatórios!", "error");
       return;
     }
-    setUser({ ...user, ...profileForm });
+
+    const updatedUser: UserData = {
+      ...userData!,
+      nome: profileData.nome,
+      email: profileData.email,
+      profile_image: profileData.foto
+    };
+
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    setUserData(updatedUser);
     displayAlert("Perfil atualizado com sucesso!", "success");
   };
 
@@ -122,6 +134,7 @@ export default function Settings() {
     displayAlert("Conta excluída com sucesso! Redirecionando...", "success");
     setTimeout(() => {
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
       window.location.href = "/login";
     }, 2000);
   };
@@ -129,6 +142,7 @@ export default function Settings() {
   const handleLogout = () => {
     if (window.confirm("Deseja realmente sair?")) {
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
       window.location.reload();
     }
   };
@@ -137,12 +151,60 @@ export default function Settings() {
     navigate('/');
   };
 
-const tabs = [
-  { id: "profile", label: "Perfil", icon: User },
-  { id: "security", label: "Segurança", icon: Shield },
-  { id: "notifications", label: "Notificações", icon: Bell },
-  { id: "privacy", label: "Privacidade", icon: Globe },
-];
+  const handleImageUpload = () => {
+    displayAlert("Funcionalidade de upload em desenvolvimento", "success");
+  };
+
+  const getUserTypeLabel = (type?: string) => {
+    if (!type) return 'Usuário';
+    
+    const types: Record<string, string> = {
+      'admin': 'Administrador',
+      'professor': 'Professor',
+      'gestor': 'Gestor',
+    };
+    
+    return types[type.toLowerCase()] || type;
+  };
+
+  const getUserInitials = (nome?: string) => {
+    if (!nome || typeof nome !== 'string') return 'U';
+    const trimmedName = nome.trim();
+    if (!trimmedName) return 'U';
+    
+    const names = trimmedName.split(' ').filter(n => n.length > 0);
+    if (names.length === 0) return 'U';
+    if (names.length === 1) {
+      return names[0].charAt(0).toUpperCase();
+    }
+    return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
+  };
+
+  const getProfileImage = () => {
+    if (userData?.profile_image) {
+      return userData.profile_image;
+    }
+    const initials = getUserInitials(userData?.nome);
+    return `https://ui-avatars.com/api/?name=${initials}&background=155dfc&color=fff&size=128`;
+  };
+
+  const tabs = [
+    { id: "profile", label: "Perfil", icon: User },
+    { id: "security", label: "Segurança", icon: Shield },
+    { id: "notifications", label: "Notificações", icon: Bell },
+    { id: "privacy", label: "Privacidade", icon: Globe },
+  ];
+
+  if (!userData) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${darkMode ? "bg-gray-900" : "bg-gradient-to-br from-blue-50 to-indigo-100"}`}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className={darkMode ? "text-gray-300" : "text-gray-700"}>Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${darkMode ? "bg-gray-900" : "bg-gradient-to-br from-blue-50 to-indigo-100"}`}>
@@ -151,7 +213,7 @@ const tabs = [
       {/* Header */}
       <Header 
         darkMode={darkMode} 
-        onLogout={() => handleLogout()}
+        onLogout={handleLogout}
       />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -168,27 +230,55 @@ const tabs = [
           <aside className={`lg:col-span-1 ${darkMode ? "bg-gray-800/80" : "bg-white/80"} backdrop-blur-sm rounded-2xl shadow-xl p-6`}>
             <div className="text-center mb-6">
               <div className="relative inline-block">
-                <img src={user.foto} alt="Profile" className="w-24 h-24 rounded-full mx-auto mb-3 border-4 border-blue-500" />
-                <button className="absolute bottom-2 right-0 bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => displayAlert("Funcionalidade de upload em desenvolvimento", "success")}>
+                <img 
+                  src={getProfileImage()} 
+                  alt="Profile" 
+                  className="w-24 h-24 rounded-full mx-auto mb-3 border-4 border-blue-500 object-cover" 
+                  onError={(e) => {
+                    const initials = getUserInitials(userData?.nome);
+                    e.currentTarget.src = `https://ui-avatars.com/api/?nome=${initials}&background=4F46E5&color=fff&size=128`;
+                  }}
+                />
+                <button 
+                  className="absolute bottom-2 right-0 bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors" 
+                  onClick={handleImageUpload}
+                >
                   📷
                 </button>
               </div>
-              <h2 className={`text-xl font-bold ${darkMode ? "text-white" : "text-gray-800"}`}>{user.nome}</h2>
-              <p className={`text-sm capitalize ${darkMode ? "text-gray-400" : "text-gray-600"}`}>{user.tipo_usuario}</p>
+              <h2 className={`text-xl font-bold ${darkMode ? "text-white" : "text-gray-800"}`}>
+                {userData.nome}
+              </h2>
+              <p className={`text-sm capitalize ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+                {getUserTypeLabel(userData.tipo_usuario)}
+              </p>
             </div>
 
             <nav className="space-y-2">
               {tabs.map((tab) => {
                 const IconComponent = tab.icon;
                 return (
-                  <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-200 flex items-center space-x-3 ${activeTab === tab.id ? (darkMode ? "bg-blue-600 text-white" : "bg-gradient-to-r from-blue-500 to-indigo-600 text-white") : (darkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100")}`}>
+                  <button 
+                    key={tab.id} 
+                    onClick={() => setActiveTab(tab.id)} 
+                    className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-200 flex items-center space-x-3 ${
+                      activeTab === tab.id 
+                        ? (darkMode ? "bg-blue-600 text-white" : "bg-gradient-to-r from-blue-500 to-indigo-600 text-white") 
+                        : (darkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100")
+                    }`}
+                  >
                     <IconComponent className="w-5 h-5" />
                     <span>{tab.label}</span>
                   </button>
                 );
               })}
               <div className={`my-4 border-t ${darkMode ? "border-gray-700" : "border-gray-200"}`}></div>
-              <button onClick={handleBackToDashboard} className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-200 flex items-center space-x-3 ${darkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"}`}>
+              <button 
+                onClick={handleBackToDashboard} 
+                className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-200 flex items-center space-x-3 ${
+                  darkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
+                }`}
+              >
                 <ArrowLeft className="w-5 h-5" />
                 <span>Voltar</span>
               </button>
@@ -200,13 +290,10 @@ const tabs = [
             {/* Profile Tab */}
             {activeTab === "profile" && (
               <ProfileTab
-                profileForm={profileForm}
-                userType={user.tipo_usuario}
+                darkMode={darkMode}
                 onUpdateProfile={handleUpdateProfile}
-                onFormChange={setProfileForm}
               />
             )}
-            
 
             {/* Security Tab */}
             {activeTab === "security" && (

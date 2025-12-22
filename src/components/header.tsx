@@ -9,9 +9,13 @@ interface HeaderProps extends ComponentProps<"header"> {
   onLogout?: () => void;
   title?: string;
   setShowModal?: (value: boolean) => void;
-  userImage?: string;
-  userName?: string;
-  userEmail?: string;
+}
+
+interface UserData {
+  id: string;
+  nome: string;
+  email: string;
+  profile_image?: string;
 }
 
 export function Header(props: HeaderProps) {
@@ -23,18 +27,28 @@ export function Header(props: HeaderProps) {
     onLogout,
     setShowModal,
     title = "AXII",
-    userImage,
-    userName = "Usuário",
-    userEmail = "usuario@email.com",
     ...rest 
   } = props;
-  const { darkMode: darkModeContext, toggleDarkMode: toggleDarkModeContext } = useTheme();
   
+  const { darkMode: darkModeContext, toggleDarkMode: toggleDarkModeContext } = useTheme();
   const darkMode = darkModeProp ?? darkModeContext;
   const handleToggleDarkMode = onToggleDarkMode ?? toggleDarkModeContext;
   
   const [showDropdown, setShowDropdown] = useState(false);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const userString = localStorage.getItem('user');
+    if (userString) {
+      try {
+        const user = JSON.parse(userString);
+        setUserData(user);
+      } catch (error) {
+        console.error('Erro ao parsear dados do usuário:', error);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -46,6 +60,27 @@ export function Header(props: HeaderProps) {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const getUserInitials = (nome?: string) => {
+    if (!nome || typeof nome !== 'string') return 'U';
+    const trimmedName = nome.trim();
+    if (!trimmedName) return 'U';
+    
+    const names = trimmedName.split(' ').filter(n => n.length > 0);
+    if (names.length === 0) return 'U';
+    if (names.length === 1) {
+      return names[0].charAt(0).toUpperCase();
+    }
+    return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
+  };
+
+  const getProfileImage = () => {
+    if (userData?.profile_image) {
+      return userData.profile_image;
+    }
+    const initials = getUserInitials(userData?.nome);
+    return `https://ui-avatars.com/api/?name=${initials}&background=155dfc&color=fff&size=128`;
+  };
   
   const baseClass = `relative z-50 backdrop-blur-sm shadow-md ${
     darkMode ? "bg-gray-800/80" : "bg-white/80"
@@ -59,13 +94,14 @@ export function Header(props: HeaderProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div
-              className={`w-12 h-12 rounded-full flex items-center justify-center`}
-            >
-              <img src={`${
-                darkMode ? "https://lfcostldktmoevensqdj.supabase.co/storage/v1/object/public/axii/white-logo.svg" 
-                : "https://lfcostldktmoevensqdj.supabase.co/storage/v1/object/public/axii/logo.svg"
-              }`} alt="" />
+            <div className="w-12 h-12 rounded-full flex items-center justify-center">
+              <img 
+                src={darkMode 
+                  ? "https://lfcostldktmoevensqdj.supabase.co/storage/v1/object/public/axii/white-logo.svg" 
+                  : "https://lfcostldktmoevensqdj.supabase.co/storage/v1/object/public/axii/logo.svg"
+                } 
+                alt="Logo AXII" 
+              />
             </div>
             <h1
               className={`text-2xl font-bold ${
@@ -87,19 +123,11 @@ export function Header(props: HeaderProps) {
               aria-label="Alternar tema"
             >
               {darkMode ? (
-                <svg
-                  className="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" />
                 </svg>
               ) : (
-                <svg
-                  className="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
                 </svg>
               )}
@@ -116,21 +144,15 @@ export function Header(props: HeaderProps) {
                   }`}
                   aria-label="Menu do usuário"
                 >
-                  {userImage ? (
-                    <img 
-                      src={userImage} 
-                      alt="Foto de perfil" 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className={`w-full h-full flex items-center justify-center ${
-                      darkMode ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-700"
-                    }`}>
-                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                  )}
+                  <img 
+                    src={getProfileImage()} 
+                    alt="Foto de perfil" 
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                    const initials = getUserInitials(userData?.nome);
+                    e.currentTarget.src = `https://ui-avatars.com/api/?nome=${initials}&background=4F46E5&color=fff&size=128`;
+                  }}
+                  />                   
                 </button>
 
                 {showDropdown && (
@@ -141,31 +163,29 @@ export function Header(props: HeaderProps) {
                       darkMode ? "border-gray-700" : "border-gray-200"
                     }`}>
                       <div className="flex items-center space-x-3">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center overflow-hidden ${
-                          darkMode ? "bg-gray-700" : "bg-gray-200"
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center overflow-hidden font-semibold ${
+                          darkMode ? "bg-blue-600 text-white" : "bg-blue-500 text-white"
                         }`}>
-                          {userImage ? (
-                            <img 
-                              src={userImage} 
-                              alt="Foto de perfil" 
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <svg className="w-7 h-7 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                            </svg>
-                          )}
+                          <img 
+                            src={getProfileImage()} 
+                            alt="Profile" 
+                            className="w-full h-full rounded-full object-cover" 
+                            onError={(e) => {
+                              const initials = getUserInitials(userData?.nome);
+                              e.currentTarget.src = `https://ui-avatars.com/api/?nome=${initials}&background=4F46E5&color=fff&size=128`;
+                            }}
+                          />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className={`text-sm font-semibold truncate ${
                             darkMode ? "text-white" : "text-gray-900"
                           }`}>
-                            {userName}
+                            {userData?.nome || "Usuário"}
                           </p>
                           <p className={`text-xs truncate ${
                             darkMode ? "text-gray-400" : "text-gray-500"
                           }`}>
-                            {userEmail}
+                            {userData?.email || "usuario@email.com"}
                           </p>
                         </div>
                       </div>
@@ -250,7 +270,7 @@ export function Header(props: HeaderProps) {
                 className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 ${
                   darkMode
                     ? "bg-blue-600 hover:bg-blue-700 text-white"
-                    : "bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                    : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
                 } transform hover:scale-[1.02]`}
               >
                 <svg
@@ -269,7 +289,6 @@ export function Header(props: HeaderProps) {
                 <span className="hidden md:inline">Adicionar Dispositivo</span>
               </button>
             )}
-            
           </div>
         </div>
       </div>
