@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom"; 
 import { useTheme } from "../components/theme/theme-context";
 import { Tab } from "../components/settings/tab";
@@ -9,7 +9,8 @@ import { SecurityTab } from "../components/settings/security-tab";
 import { NotificationsTab } from "../components/settings/notifications-tab";
 import { PrivacyTab } from "../components/settings/privacy-tab";
 import { DangerZone } from "../components/settings/danger-zone";
-import { User, Shield, Bell, Globe, ArrowLeft } from "lucide-react";
+import { User, Shield, Bell, Globe, ArrowLeft, Camera } from "lucide-react";
+import { useApiUrl } from "../components/hooks/api";
 
 interface UserData {
   id: string;
@@ -17,17 +18,21 @@ interface UserData {
   email: string;
   tipo_usuario?: string;
   profile_image?: string;
+  foto?: string;
 }
 
 export default function Settings() {
   const { darkMode } = useTheme();
   const navigate = useNavigate(); 
-  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const API_URL = useApiUrl();
+
   const [activeTab, setActiveTab] = useState("profile");
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState<"success" | "error">("success");
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
@@ -68,6 +73,83 @@ export default function Settings() {
     setAlertType(type);
     setShowAlert(true);
     setTimeout(() => setShowAlert(false), 5000);
+  };
+
+  const handleImageUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    
+    if (!file) return;
+
+    // Validar tipo de arquivo
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      displayAlert("Tipo de arquivo não permitido. Use apenas JPG, PNG ou WEBP", "error");
+      return;
+    }
+
+    // Validar tamanho (5MB)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      displayAlert("O arquivo é muito grande. O tamanho máximo é 5MB", "error");
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        throw new Error('Token não encontrado');
+      }
+
+      const formData = new FormData();
+      formData.append('photo', file);
+
+      // CORREÇÃO: Remover o Content-Type do headers
+      // O navegador vai definir automaticamente como multipart/form-data
+      const response = await fetch(`${API_URL}/tcc-axii/Project-Axii-api/api/user/update_photo.php`, {
+        method: 'POST',
+        headers: {
+          "ngrok-skip-browser-warning": "true",
+          'Authorization': `Bearer ${token}`,
+          // NÃO inclua Content-Type aqui - deixe o browser definir automaticamente
+        },
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Atualizar dados do usuário no localStorage e state
+        const updatedUser = {
+          ...userData!,
+          foto: data.photo_url,
+          profile_image: data.photo_url
+        };
+        
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        setUserData(updatedUser);
+        
+        displayAlert("Foto atualizada com sucesso!", "success");
+      } else {
+        throw new Error(data.message || 'Erro ao fazer upload');
+      }
+
+    } catch (error: any) {
+      console.error('Erro no upload:', error);
+      displayAlert(error.message || "Erro ao fazer upload da foto", "error");
+    } finally {
+      setUploading(false);
+      // Limpar input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   };
 
   const handleUpdateProfile = (profileData: { nome: string; email: string; foto: string }) => {
@@ -151,10 +233,6 @@ export default function Settings() {
     navigate('/');
   };
 
-  const handleImageUpload = () => {
-    displayAlert("Funcionalidade de upload em desenvolvimento", "success");
-  };
-
   const getUserTypeLabel = (type?: string) => {
     if (!type) return 'Usuário';
     
@@ -181,6 +259,9 @@ export default function Settings() {
   };
 
   const getProfileImage = () => {
+    if (userData?.foto) {
+      return userData.foto;
+    }
     if (userData?.profile_image) {
       return userData.profile_image;
     }
@@ -210,6 +291,15 @@ export default function Settings() {
     <div className={`min-h-screen transition-colors duration-300 ${darkMode ? "bg-gray-900" : "bg-gradient-to-br from-blue-50 to-indigo-100"}`}>
       <BackgroundBlobs darkMode={darkMode} />
 
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/jpg,image/png,image/webp"
+        onChange={handleFileChange}
+        style={{ display: 'none' }}
+      />
+
       {/* Header */}
       <Header 
         darkMode={darkMode} 
@@ -236,14 +326,20 @@ export default function Settings() {
                   className="w-24 h-24 rounded-full mx-auto mb-3 border-4 border-blue-500 object-cover" 
                   onError={(e) => {
                     const initials = getUserInitials(userData?.nome);
-                    e.currentTarget.src = `https://ui-avatars.com/api/?nome=${initials}&background=4F46E5&color=fff&size=128`;
+                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${initials}&background=4F46E5&color=fff&size=128`;
                   }}
                 />
                 <button 
-                  className="absolute bottom-2 right-0 bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors" 
+                  className="absolute bottom-2 right-0 bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
                   onClick={handleImageUpload}
+                  disabled={uploading}
+                  title="Fazer upload de foto"
                 >
-                  📷
+                  {uploading ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  ) : (
+                    <Camera className="w-4 h-4" />
+                  )}
                 </button>
               </div>
               <h2 className={`text-xl font-bold ${darkMode ? "text-white" : "text-gray-800"}`}>

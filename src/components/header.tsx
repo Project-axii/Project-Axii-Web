@@ -15,7 +15,7 @@ interface UserData {
   id: string;
   nome: string;
   email: string;
-  profile_image?: string;
+  foto?: string;
 }
 
 export function Header(props: HeaderProps) {
@@ -75,8 +75,8 @@ export function Header(props: HeaderProps) {
   };
 
   const getProfileImage = () => {
-    if (userData?.profile_image) {
-      return userData.profile_image;
+    if (userData?.foto) {
+      return userData.foto;
     }
     const initials = getUserInitials(userData?.nome);
     return `https://ui-avatars.com/api/?name=${initials}&background=155dfc&color=fff&size=128`;
