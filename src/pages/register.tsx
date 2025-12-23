@@ -3,10 +3,11 @@ import { BackgroundBlobs } from "../components/background";
 import { AuthInput } from "../components/Authentication/input";
 import { useTheme } from "../components/theme/theme-context";
 import { ThemeToggle } from "../components/theme/theme-toggle";
+import { useApiUrl } from "../components/hooks/api";
 
-const API_URL = "http://localhost/tcc-axii/Project-axii-api/api/auth/register.php";
 
 export default function RegisterScreen() {
+  const API_URL = useApiUrl();
   const { darkMode } = useTheme();
   const [formData, setFormData] = useState({
     name: "",
@@ -65,16 +66,18 @@ export default function RegisterScreen() {
   };
 
   const handleSubmit = async () => {
+    if (!API_URL) return; 
     if (!validateForm()) return;
 
     setIsLoading(true);
     setAlert(null);
 
     try {
-      const response = await fetch(API_URL, {
+      const response = await fetch(`${API_URL}/tcc-axii/Project-axii-api/api/auth/register.php`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
         },
         body: JSON.stringify({
           name: formData.name,

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import {useApiUrl} from "./api";
 
 interface Device {
   id: number;
@@ -21,9 +22,9 @@ interface NewDevice {
   descricao: string;
 }
 
-const API_URL = "http://localhost/tcc-axii/Project-axii-api/api";
 
 export function useDeviceManagement() {
+  const API_URL = useApiUrl();
   const [devices, setDevices] = useState<Device[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,11 +36,13 @@ export function useDeviceManagement() {
     descricao: "",
   });
   const [showModal, setShowModal] = useState(false);
+  
 
   const getHeaders = (): HeadersInit => {
     const token = localStorage.getItem("token");
     return {
       "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
       Authorization: token ? `Bearer ${token}` : "",
     };
   };
@@ -55,7 +58,7 @@ export function useDeviceManagement() {
   const loadDevices = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/devices/list.php`, {
+      const response = await fetch(`${API_URL}/tcc-axii/Project-axii-api/api/devices/list.php`, {
         method: "GET",
         headers: getHeaders(),
       });
@@ -66,16 +69,16 @@ export function useDeviceManagement() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [API_URL]);
 
   useEffect(() => {
     loadDevices();
-  }, [loadDevices]);
+  }, [API_URL, loadDevices]);
 
   const handleAddDevice = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/devices/create.php`, {
+      const response = await fetch(`${API_URL}/tcc-axii/Project-axii-api/api/devices/create.php`, {
         method: "POST",
         headers: getHeaders(),
         body: JSON.stringify(newDevice),
@@ -91,12 +94,12 @@ export function useDeviceManagement() {
     } finally {
       setLoading(false);
     }
-  }, [newDevice, loadDevices]);
+  }, [newDevice, loadDevices, API_URL]);
 
   const toggleDevice = useCallback(async (id: number) => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/devices/toggle.php`, {
+      const response = await fetch(`${API_URL}/tcc-axii/Project-axii-api/api/devices/toggle.php`, {
         method: "POST",
         headers: getHeaders(),
         body: JSON.stringify({ id }),
@@ -110,12 +113,12 @@ export function useDeviceManagement() {
     } finally {
       setLoading(false);
     }
-  }, [loadDevices]);
+  }, [loadDevices, API_URL]);
 
   const updateStatus = useCallback(async (id: number, status: Device["status"]) => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/devices/update.php`, {
+      const response = await fetch(`${API_URL}/tcc-axii/Project-axii-api/api/devices/update.php`, {
         method: "POST",
         headers: getHeaders(),
         body: JSON.stringify({ id, status }),
@@ -127,13 +130,13 @@ export function useDeviceManagement() {
     } finally {
       setLoading(false);
     }
-  }, [loadDevices]);
+  }, [loadDevices, API_URL]);
 
   const deleteDevice = useCallback(async (id: number) => {
     if (!window.confirm("Deseja excluir?")) return;
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/devices/delete.php`, {
+      const response = await fetch(`${API_URL}/tcc-axii/Project-axii-api/api/devices/delete.php`, {
         method: "DELETE",
         headers: getHeaders(),
         body: JSON.stringify({ id }),
@@ -145,7 +148,7 @@ export function useDeviceManagement() {
     } finally {
       setLoading(false);
     }
-  }, [loadDevices]);
+  }, [loadDevices, API_URL]);
 
   return {
     devices,
