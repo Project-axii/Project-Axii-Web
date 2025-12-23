@@ -33,12 +33,11 @@ interface UserData {
   nome: string;
   email: string;
   tipo_usuario?: string;
-  profile_image?: string;
 }
 
 interface ProfileTabProps {
   darkMode?: boolean;
-  onUpdateProfile?: (data: { nome: string; email: string; foto: string }) => void;
+  onUpdateProfile?: (data: { nome: string; email: string }) => void;
 }
 
 export function ProfileTab(props: ProfileTabProps) {
@@ -54,7 +53,6 @@ export function ProfileTab(props: ProfileTabProps) {
   const [profileForm, setProfileForm] = useState({
     nome: '',
     email: '',
-    foto: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{
@@ -71,7 +69,6 @@ export function ProfileTab(props: ProfileTabProps) {
         setProfileForm({
           nome: user.nome || '',
           email: user.email || '',
-          foto: user.profile_image || ''
         });
       } catch (error) {
         console.error('Erro ao carregar dados do usuário:', error);
@@ -92,7 +89,6 @@ export function ProfileTab(props: ProfileTabProps) {
           ...userData!,
           nome: profileForm.nome,
           email: profileForm.email,
-          profile_image: profileForm.foto
         };
         
         localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -203,35 +199,6 @@ export function ProfileTab(props: ProfileTabProps) {
           />
         </div>
         
-        <div>
-          <Label darkMode={darkMode}>URL da Foto (opcional)</Label>
-          <DashInput
-            type="url"
-            value={profileForm.foto}
-            onChange={(e) => setProfileForm({ ...profileForm, foto: e.target.value })}
-            placeholder="https://exemplo.com/foto.jpg"
-            darkMode={darkMode}
-          />
-          {profileForm.foto && (
-            <div className="mt-3 flex items-center gap-3">
-              <div className={`w-16 h-16 rounded-full overflow-hidden border-2 ${
-                darkMode ? "border-gray-600" : "border-gray-300"
-              }`}>
-                <img 
-                  src={profileForm.foto} 
-                  alt="Preview" 
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-              </div>
-              <p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-                Preview da foto de perfil
-              </p>
-            </div>
-          )}
-        </div>
         
         <button
           onClick={handleUpdateProfile}

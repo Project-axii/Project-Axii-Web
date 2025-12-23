@@ -152,7 +152,7 @@ export default function Settings() {
     }
   };
 
-  const handleUpdateProfile = (profileData: { nome: string; email: string; foto: string }) => {
+  const handleUpdateProfile = (profileData: { nome: string; email: string}) => {
     if (!profileData.nome || !profileData.email) {
       displayAlert("Preencha todos os campos obrigatórios!", "error");
       return;
@@ -162,7 +162,6 @@ export default function Settings() {
       ...userData!,
       nome: profileData.nome,
       email: profileData.email,
-      profile_image: profileData.foto
     };
 
     localStorage.setItem('user', JSON.stringify(updatedUser));
