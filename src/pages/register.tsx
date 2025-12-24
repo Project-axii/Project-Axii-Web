@@ -1,10 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BackgroundBlobs } from "../components/background";
 import { AuthInput } from "../components/Authentication/input";
 import { useTheme } from "../components/theme/theme-context";
 import { ThemeToggle } from "../components/theme/theme-toggle";
 import { useApiUrl } from "../components/hooks/api";
 
+interface PasswordStrength {
+  score: number;
+  level: 'weak' | 'medium' | 'strong';
+  feedback: string[];
+}
 
 export default function RegisterScreen() {
   const API_URL = useApiUrl();
@@ -23,6 +28,67 @@ export default function RegisterScreen() {
     type: "success" | "error";
     message: string;
   } | null>(null);
+  const [passwordStrength, setPasswordStrength] = useState<PasswordStrength | null>(null);
+  const [showStrengthIndicator, setShowStrengthIndicator] = useState(false);
+
+  // Validar força da senha quando o campo de senha mudar
+  useEffect(() => {
+    if (formData.password.length > 0) {
+      validatePasswordStrength(formData.password);
+      setShowStrengthIndicator(true);
+    } else {
+      setShowStrengthIndicator(false);
+      setPasswordStrength(null);
+    }
+  }, [formData.password]);
+
+  const validatePasswordStrength = async (password: string) => {
+    if (!API_URL) return;
+    
+    try {
+      const response = await fetch(`${API_URL}/tcc-axii/Project-axii-api/api/user/validate_password.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
+        },
+        body: JSON.stringify({ password }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setPasswordStrength(data.strength);
+      }
+    } catch (error) {
+      console.error('Erro ao validar senha:', error);
+    }
+  };
+
+  const getStrengthColor = (level: string) => {
+    switch (level) {
+      case 'strong':
+        return darkMode ? 'bg-green-500' : 'bg-green-600';
+      case 'medium':
+        return darkMode ? 'bg-yellow-500' : 'bg-yellow-600';
+      case 'weak':
+        return darkMode ? 'bg-red-500' : 'bg-red-600';
+      default:
+        return 'bg-gray-400';
+    }
+  };
+
+  const getStrengthLabel = (level: string) => {
+    switch (level) {
+      case 'strong':
+        return 'Forte';
+      case 'medium':
+        return 'Média';
+      case 'weak':
+        return 'Fraca';
+      default:
+        return '';
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -341,6 +407,37 @@ export default function RegisterScreen() {
                     )}
                   </button>
                 </div>
+
+                {/* Indicador de força da senha */}
+                {showStrengthIndicator && passwordStrength && (
+                  <div className="mt-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full transition-all duration-300 ${getStrengthColor(passwordStrength.level)}`}
+                          style={{ width: `${passwordStrength.score}%` }}
+                        />
+                      </div>
+                      <span className={`text-sm font-medium ${
+                        darkMode ? "text-gray-300" : "text-gray-700"
+                      }`}>
+                        {getStrengthLabel(passwordStrength.level)}
+                      </span>
+                    </div>
+                    <ul className={`text-xs space-y-1 ${
+                      darkMode ? "text-gray-400" : "text-gray-600"
+                    }`}>
+                      {passwordStrength.feedback.slice(0, 3).map((feedback, index) => (
+                        <li key={index} className="flex items-center gap-1">
+                          <span className={feedback.includes('Contém') || feedback.includes('adequado') ? 'text-green-500' : 'text-yellow-500'}>
+                            {feedback.includes('Contém') || feedback.includes('adequado') ? '✓' : '○'}
+                          </span>
+                          {feedback}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
 
               {/* Confirmar Senha */}
@@ -409,6 +506,28 @@ export default function RegisterScreen() {
                     )}
                   </button>
                 </div>
+              </div>
+
+              {/* Dicas de segurança */}
+              <div className={`p-4 rounded-lg ${
+                darkMode ? "bg-blue-900/20 border border-blue-800/30" : "bg-blue-50 border border-blue-200"
+              }`}>
+                <h4 className={`text-sm font-semibold mb-2 flex items-center gap-2 ${
+                  darkMode ? "text-blue-400" : "text-blue-800"
+                }`}>
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  Dicas para uma senha forte
+                </h4>
+                <ul className={`text-xs space-y-1 ${
+                  darkMode ? "text-blue-300" : "text-blue-700"
+                }`}>
+                  <li>• Use pelo menos 6 caracteres</li>
+                  <li>• Combine letras maiúsculas e minúsculas</li>
+                  <li>• Inclua números e caracteres especiais</li>
+                  <li>• Evite informações pessoais óbvias</li>
+                </ul>
               </div>
 
               {/* Termos */}

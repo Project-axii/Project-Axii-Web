@@ -393,6 +393,7 @@ export default function Settings() {
             {/* Security Tab */}
             {activeTab === "security" && (
               <SecurityTab
+                darkMode={darkMode}
                 passwordForm={passwordForm}
                 onUpdatePassword={handleUpdatePassword}
                 onFormChange={setPasswordForm}
@@ -402,6 +403,7 @@ export default function Settings() {
             {/* Notifications Tab */}
             {activeTab === "notifications" && (
               <NotificationsTab
+                darkMode={darkMode}
                 preferences={preferences}
                 onPreferenceChange={handlePreferenceChange}
               />
@@ -411,12 +413,14 @@ export default function Settings() {
             {activeTab === "privacy" && (
               <Tab>
                 <PrivacyTab
+                  darkMode={darkMode}
                   preferences={preferences}
                   onPreferenceChange={handlePreferenceChange}
                 />
 
                 {/* Danger Zone */}
                 <DangerZone
+                  darkMode={darkMode}
                   onClearAllData={handleClearAllData}
                   onDeleteAccount={handleDeleteAccount}
                 />
