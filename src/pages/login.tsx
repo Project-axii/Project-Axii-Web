@@ -70,10 +70,13 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
                 const tokenSalvo = localStorage.getItem("token");
                 console.log('Token verificado no localStorage:', tokenSalvo ? 'Salvo com sucesso' : 'ERRO ao salvar');
                 
-                if (!remember) {
-                    console.log('Remember desmarcado - token será removido ao fechar o navegador');
-                    sessionStorage.setItem("tempSession", "true");
-                }
+                if (remember) {
+										localStorage.setItem("token", data.token);
+										localStorage.setItem("user", JSON.stringify(data.user));
+								} else {
+										sessionStorage.setItem("token", data.token);
+										sessionStorage.setItem("user", JSON.stringify(data.user));
+								}
 
                 setTimeout(() => {
                     onLogin();

@@ -84,7 +84,6 @@ export function ProfileTab(props: ProfileTabProps) {
   useEffect(() => {
     const loadUserData = async () => {
       try {
-        // Tentar carregar do estado em memória primeiro
         const userString = localStorage.getItem('user');
         
         if (userString) {

@@ -21,7 +21,12 @@ interface UserData {
   foto?: string;
 }
 
-export default function Settings() {
+interface SettingsProps {
+  onLogout: () => void;
+}
+
+export default function Settings({ onLogout }: SettingsProps) {
+
   const { darkMode } = useTheme();
   const navigate = useNavigate(); 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -63,7 +68,7 @@ export default function Settings() {
     } else {
       displayAlert("Usuário não encontrado. Faça login novamente.", "error");
       setTimeout(() => {
-        handleLogout();
+        onLogout();
       }, 2000);
     }
   }, []);
@@ -84,14 +89,12 @@ export default function Settings() {
     
     if (!file) return;
 
-    // Validar tipo de arquivo
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
       displayAlert("Tipo de arquivo não permitido. Use apenas JPG, PNG ou WEBP", "error");
       return;
     }
 
-    // Validar tamanho (5MB)
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
       displayAlert("O arquivo é muito grande. O tamanho máximo é 5MB", "error");
@@ -110,14 +113,11 @@ export default function Settings() {
       const formData = new FormData();
       formData.append('photo', file);
 
-      // CORREÇÃO: Remover o Content-Type do headers
-      // O navegador vai definir automaticamente como multipart/form-data
       const response = await fetch(`${API_URL}/tcc-axii/Project-Axii-api/api/user/update_photo.php`, {
         method: 'POST',
         headers: {
           "ngrok-skip-browser-warning": "true",
           'Authorization': `Bearer ${token}`,
-          // NÃO inclua Content-Type aqui - deixe o browser definir automaticamente
         },
         body: formData
       });
@@ -125,7 +125,6 @@ export default function Settings() {
       const data = await response.json();
 
       if (data.success) {
-        // Atualizar dados do usuário no localStorage e state
         const updatedUser = {
           ...userData!,
           foto: data.photo_url,
@@ -145,7 +144,6 @@ export default function Settings() {
       displayAlert(error.message || "Erro ao fazer upload da foto", "error");
     } finally {
       setUploading(false);
-      // Limpar input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -214,18 +212,8 @@ export default function Settings() {
     }
     displayAlert("Conta excluída com sucesso! Redirecionando...", "success");
     setTimeout(() => {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      window.location.href = "/login";
-    }, 2000);
-  };
-
-  const handleLogout = () => {
-    if (window.confirm("Deseja realmente sair?")) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      window.location.reload();
-    }
+			onLogout();
+		}, 2000);
   };
 
   const handleBackToDashboard = () => {
@@ -302,7 +290,7 @@ export default function Settings() {
       {/* Header */}
       <Header 
         darkMode={darkMode} 
-        onLogout={handleLogout}
+        onLogout={onLogout}
       />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

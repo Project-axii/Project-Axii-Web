@@ -6,12 +6,22 @@ import DeviceManagement from './home';
 import RegisterScreen from './register';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    return !!token;
+  });
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+    setIsLoggedIn(false);
+  };
 
   return (
     <Router>
       <Routes>
-        {/*login*/}
         <Route 
           path="/login" 
           element={
@@ -23,43 +33,39 @@ function App() {
           } 
         />
         
-        {/*Dashboard*/}
         <Route 
           path="/" 
           element={
             isLoggedIn ? (
-              <DeviceManagement />
+              <DeviceManagement onLogout={handleLogout} />
             ) : (
               <Navigate to="/login" replace />
             )
           } 
         />
         
-        {/*settings*/}
         <Route 
           path="/settings" 
           element={
             isLoggedIn ? (
-              <Settings />
+              <Settings onLogout={handleLogout} />
             ) : (
               <Navigate to="/login" replace />
             )
           } 
         />
 
-          {/* Register */}
         <Route 
           path="/register" 
           element={
             isLoggedIn ? (
-              <DeviceManagement />
+              <DeviceManagement onLogout={handleLogout} />
             ) : (
               <RegisterScreen/>
             )
           } 
         />
 
-        {/* Redireciona rotas não encontradas */}
         <Route 
           path="*" 
           element={<Navigate to={isLoggedIn ? "/" : "/login"} replace />} 

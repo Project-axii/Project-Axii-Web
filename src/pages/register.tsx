@@ -31,7 +31,6 @@ export default function RegisterScreen() {
   const [passwordStrength, setPasswordStrength] = useState<PasswordStrength | null>(null);
   const [showStrengthIndicator, setShowStrengthIndicator] = useState(false);
 
-  // Validar força da senha quando o campo de senha mudar
   useEffect(() => {
     if (formData.password.length > 0) {
       validatePasswordStrength(formData.password);
@@ -155,7 +154,6 @@ export default function RegisterScreen() {
       const data = await response.json();
 
       if (data.success) {
-        // Salvar token e dados do usuário
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
 

@@ -20,6 +20,10 @@ interface Device {
   ultima_conexao: string;
 }
 
+interface IntegratedDashboardProps {
+  onLogout: () => void;
+}
+
 function Statistics({ stats, darkMode }: any) {
   const statItems = [
     { label: "Total", value: stats.total, color: darkMode ? "text-blue-400" : "text-blue-600" },
@@ -281,7 +285,7 @@ function RoomDetails({ sala, devices, onBack, darkMode, deviceIcons, tipoLabels,
   );
 }
 
-export default function IntegratedDashboard() {
+export default function IntegratedDashboard({ onLogout }: IntegratedDashboardProps) {
   const { darkMode, toggleDarkMode } = useTheme();
   const navigate = useNavigate();
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
@@ -343,10 +347,6 @@ export default function IntegratedDashboard() {
     });
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.reload();
-  };
 
   const toggleAllInCategory = (categoryDevices: Device[]) => {
     const allOn = categoryDevices.every(d => d.ativo && d.status === "online");
@@ -366,12 +366,12 @@ export default function IntegratedDashboard() {
       <BackgroundBlobs darkMode={darkMode} />
       
       <Header 
-        darkMode={darkMode}
-        onToggleDarkMode={toggleDarkMode}
-        onLogout={handleLogout}
-        onGoToSettings={() => navigate('/settings')}
-        setShowModal={setShowModal}
-      />
+				darkMode={darkMode}
+				onToggleDarkMode={toggleDarkMode}
+				onLogout={onLogout}
+				onGoToSettings={() => navigate('/settings')}
+				setShowModal={setShowModal}
+			/>
 
       {selectedRoom ? (
         <RoomDetails
