@@ -19,7 +19,7 @@ export function BackgroundBlobs(props: BackgroundBlobsProps) {
       className={[
         baseClass, 
         darkMode 
-          ? "bg-linear-to-br from-blue-900 via-slate-900 to-purple-900" 
+          ? "bg-linear-to-br via-slate-900" 
           : "bg-linear-to-br via-slate-100",
         className
       ].filter(Boolean).join(' ')}
