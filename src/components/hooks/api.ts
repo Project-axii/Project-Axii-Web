@@ -13,10 +13,8 @@ export function useApiUrl() {
 
         if (data.status === "success" && data.link) {
           setApiUrl(data.link);
-          console.log("URL da API carregada:", data.link);
         } else {
           setApiUrl("http://localhost/tcc-axii/Project-axii-api");
-          console.warn("Link não encontrado no JSON, usando localhost");
         }
       } catch (error) {
         console.error("Erro ao buscar URL da API:", error);

@@ -58,9 +58,7 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
                 
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("user", JSON.stringify(data.user));
-                
-                const tokenSalvo = localStorage.getItem("token");
-                
+                                
                 if (remember) {
 										localStorage.setItem("token", data.token);
 										localStorage.setItem("user", JSON.stringify(data.user));
