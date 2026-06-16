@@ -38,11 +38,6 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
         try {
             const loginEndpoint = `${apiUrl}/tcc-axii/Project-axii-api/api/auth/login.php`;
             
-            console.log('=== LOGIN DEBUG ===');
-            console.log('URL:', loginEndpoint);
-            console.log('Email:', email);
-            console.log('Password:', password ? '***' : 'vazio');
-            
             const response = await fetch(loginEndpoint, {
                 method: 'POST',
                 headers: {
@@ -55,20 +50,16 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
                 })
             });
 
-            console.log('Status da resposta:', response.status);
             
             const data = await response.json();
-            console.log('Dados recebidos:', data);
 
             if (data.success) {
                 setAlert({ type: "success", message: data.message });
                 
-                console.log('Salvando token:', data.token);
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("user", JSON.stringify(data.user));
                 
                 const tokenSalvo = localStorage.getItem("token");
-                console.log('Token verificado no localStorage:', tokenSalvo ? 'Salvo com sucesso' : 'ERRO ao salvar');
                 
                 if (remember) {
 										localStorage.setItem("token", data.token);
